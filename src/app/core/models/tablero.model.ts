@@ -35,6 +35,8 @@ export interface Miembro extends Integrante {
   titularCuenta: string | null;
   /** % del ingreso total del tablero (el monto es privado); null si no lo registró */
   pesoIngreso: number | null;
+  /** Ya conectó su cuenta de Stripe: se le puede pagar con tarjeta */
+  cobraConTarjeta: boolean;
 }
 
 /** Nota en miniatura para la tarjeta del tablero. */

@@ -41,6 +41,15 @@
       <input formControlName="concepto" maxlength="200" placeholder="Mi parte del súper" />
     </app-campo>
 
+    @if (tarjeta(); as t) {
+      <div class="con-tarjeta">
+        <button appBoton type="button" variante="exito" icono="credit_card" [bloque]="true" [cargando]="yendoAPagar()" (click)="irAPagar()">
+          Pagar con tarjeta {{ t.total | moneda: moneda() }}
+        </button>
+        <small>Incluye {{ t.comision | moneda: moneda() }} de comisión de Stripe; {{ nombre(a()!) }} recibe exacto lo que le debes y el pago se confirma solo.</small>
+      </div>
+    }
+
     @if (quedaPendiente() && a()) {
       <p class="nota-info"><app-icono nombre="info" [tamano]="18" /> Quedará pendiente hasta que {{ nombre(a()!) }} confirme que le llegó.</p>
     }

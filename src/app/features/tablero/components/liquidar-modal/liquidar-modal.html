@@ -1,7 +1,7 @@
 <app-modal [abierto]="abierto()" titulo="Pagar todo lo que debo" subtitulo="Con esto quedas a mano con todos" icono="handshake" ancho="s" (cerrar)="cerrar.emit()">
   <div class="contenido">
     <p class="explica">
-      Transfiere o paga a cada quien y registra los pagos de una vez. Cada persona confirma cuando le llegue.
+      Paga con tarjeta (se confirma solo) o transfiere y registra los pagos de una vez; en ese caso cada persona confirma cuando le llegue.
     </p>
 
     <ul>
@@ -14,6 +14,12 @@
             <span>Le pagas a <strong>{{ p.nombre }}</strong></span>
             <strong class="monto">{{ p.monto | moneda: store.moneda() }}</strong>
           </div>
+          @if (p.tarjeta; as t) {
+            <button appBoton type="button" variante="exito" icono="credit_card" [bloque]="true" [cargando]="yendoAPagar() === p.a" (click)="pagarConTarjeta(p.a, p.monto)">
+              Pagar con tarjeta {{ t.total | moneda: store.moneda() }}
+            </button>
+            <small class="comision">Incluye {{ t.comision | moneda: store.moneda() }} de comisión para que {{ p.nombre }} reciba exacto {{ p.monto | moneda: store.moneda() }}. Se confirma solo.</small>
+          }
           @if (p.cuenta) {
             <app-datos-transferencia [cuenta]="p.cuenta" />
           } @else {

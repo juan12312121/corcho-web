@@ -12,6 +12,8 @@ import { Icono } from '../../../../shared/components/icono/icono';
 import { DatosTransferencia } from '../../../../shared/components/datos-transferencia/datos-transferencia';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { METODOS_PAGO } from '../../../../shared/constants/opciones';
+import { comisionTarjeta, MINIMO_CON_TARJETA } from '../../../../core/utils/comision';
+import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
 
 /** Datos con los que se abre el formulario (desde una sugerencia o "pagar mi parte"). */
 export interface PagoSugerido {
@@ -25,7 +27,7 @@ export interface PagoSugerido {
 /** Registrar un pago entre miembros ("le pagué a Ana" o "Beto me pagó"). */
 @Component({
   selector: 'app-pago-formulario',
-  imports: [ReactiveFormsModule, Modal, Campo, Boton, ControlSegmentado, Avatar, Icono, DatosTransferencia],
+  imports: [ReactiveFormsModule, Modal, Campo, Boton, ControlSegmentado, Avatar, Icono, DatosTransferencia, MonedaPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pago-formulario.html',
   styleUrl: './pago-formulario.scss',
@@ -39,6 +41,8 @@ export class PagoFormulario {
   readonly yoId = input.required<string>();
   readonly moneda = input('MXN');
   readonly guardar = input.required<(datos: DatosPago) => Promise<unknown>>();
+  /** Abre Stripe para pagar con tarjeta a quien recibe (solo si conectó su cuenta) */
+  readonly pagarConTarjeta = input<(datos: { aUsuarioId: string; monto: number; notaId?: string; concepto?: string }) => Promise<unknown>>();
   readonly cerrar = output<void>();
 
   protected readonly metodos = METODOS_PAGO;
@@ -84,6 +88,27 @@ export class PagoFormulario {
         });
       });
     });
+  }
+
+  /** Pago con tarjeta disponible: yo pago y quien recibe ya puede cobrar con tarjeta */
+  protected readonly tarjeta = computed(() => {
+    const v = this.valores();
+    const monto = Number(v.monto);
+    if (!this.pagarConTarjeta() || v.deUsuarioId !== this.yoId() || !this.a()?.cobraConTarjeta || !(monto >= MINIMO_CON_TARJETA)) return null;
+    return comisionTarjeta(monto);
+  });
+  protected readonly yendoAPagar = signal(false);
+
+  protected async irAPagar(): Promise<void> {
+    const v = this.formulario.getRawValue();
+    this.yendoAPagar.set(true);
+    this.error.set(null);
+    try {
+      await this.pagarConTarjeta()!({ aUsuarioId: v.aUsuarioId, monto: Number(v.monto), notaId: v.notaId || undefined, concepto: v.concepto.trim() || undefined });
+    } catch (e) {
+      this.error.set(mensajeDeError(e));
+      this.yendoAPagar.set(false);
+    }
   }
 
   protected nombre(m: Miembro): string {

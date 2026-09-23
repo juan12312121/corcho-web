@@ -7,6 +7,7 @@ import { DatosTransferencia } from '../../../../shared/components/datos-transfer
 import { Icono } from '../../../../shared/components/icono/icono';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
+import { comisionTarjeta, MINIMO_CON_TARJETA } from '../../../../core/utils/comision';
 import { TableroStore } from '../../tablero.store';
 
 /**
@@ -28,15 +29,35 @@ export class LiquidarModal {
   readonly cerrar = output<void>();
 
   protected readonly enviando = signal(false);
+  protected readonly yendoAPagar = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
 
   protected readonly pagos = computed(() =>
     this.store.misPagosSugeridos().map((s) => {
       const m = this.store.miembro(s.a);
-      return { ...s, miembro: m, nombre: this.store.nombreDe(s.a), cuenta: m?.clabe ? { ...m, nombre: this.store.nombreDe(s.a) } : null };
+      const conTarjeta = !!m?.cobraConTarjeta && s.monto >= MINIMO_CON_TARJETA;
+      return {
+        ...s,
+        miembro: m,
+        nombre: this.store.nombreDe(s.a),
+        cuenta: m?.clabe ? { ...m, nombre: this.store.nombreDe(s.a) } : null,
+        tarjeta: conTarjeta ? comisionTarjeta(s.monto) : null,
+      };
     }),
   );
   protected readonly total = computed(() => this.pagos().reduce((t, p) => t + p.monto, 0));
+
+  /** Abre Stripe para pagarle a una persona; el pago se registra solo al cobrarse. */
+  protected async pagarConTarjeta(aUsuarioId: string, monto: number): Promise<void> {
+    this.yendoAPagar.set(aUsuarioId);
+    this.error.set(null);
+    try {
+      await this.store.pagarConTarjeta({ aUsuarioId, monto, concepto: 'Para quedar a mano' });
+    } catch (e) {
+      this.error.set(mensajeDeError(e));
+      this.yendoAPagar.set(null);
+    }
+  }
 
   protected async confirmar(): Promise<void> {
     this.enviando.set(true);

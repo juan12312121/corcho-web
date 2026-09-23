@@ -136,3 +136,16 @@
   .tarjeta { flex-direction: column; gap: 18px; padding: 18px; }
   .dos { grid-template-columns: 1fr; }
 }
+
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radio-m);
+  font-weight: 800;
+  font-size: 14px;
+
+  &.ok { background: var(--positivo-fondo); color: var(--positivo); }
+  &.pendiente { background: color-mix(in srgb, var(--acento) 18%, transparent); color: #7a5200; }
+}

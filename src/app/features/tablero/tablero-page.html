@@ -76,7 +76,7 @@
 
   @if (!store.esPersonal()) {
     <app-pago-formulario [abierto]="pagoAbierto()" [sugerido]="pagoSugerido()" [miembros]="store.miembros()"
-      [yoId]="store.yoId()" [moneda]="store.moneda()" [guardar]="guardarPago" (cerrar)="pagoAbierto.set(false)" />
+      [yoId]="store.yoId()" [moneda]="store.moneda()" [guardar]="guardarPago" [pagarConTarjeta]="pagarConTarjeta" (cerrar)="pagoAbierto.set(false)" />
     <app-invitar-modal [abierto]="invitarAbierto()" (cerrar)="invitarAbierto.set(false)" />
     <app-liquidar-modal [abierto]="liquidarAbierto()" (cerrar)="liquidarAbierto.set(false)" />
   }

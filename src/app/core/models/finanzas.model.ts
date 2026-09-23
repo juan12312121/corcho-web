@@ -51,3 +51,22 @@ export interface ResultadoImportacion {
   /** En un tablero personal los gastos importados van directo al archivo */
   archivadas: boolean;
 }
+
+/** Mi cuenta para cobrar con tarjeta (Stripe Connect). */
+export interface EstadoCobros {
+  /** El servidor tiene Stripe configurado */
+  disponible: boolean;
+  /** Ya empezó el alta */
+  conectado: boolean;
+  /** Ya puede recibir pagos */
+  listo: boolean;
+  /** Enlace a su panel de Stripe (cobros y depósitos) */
+  panel: string | null;
+}
+
+export interface PagoConTarjeta {
+  url: string;
+  sesion: string;
+  comision: number;
+  total: number;
+}

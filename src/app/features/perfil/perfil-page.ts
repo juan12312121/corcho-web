@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, OnInit, signal, untracked } from '@angular/core';
 import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { CambiosPerfil, Usuario } from '../../core/models';
+import { CambiosPerfil, EstadoCobros, Usuario } from '../../core/models';
+import { CobrosService } from '../../core/services/cobros/cobros.service';
 import { ArchivoInvalidoError } from '../../core/services/archivos/archivos.service';
 import { AvisosService } from '../../core/services/avisos/avisos.service';
 import { PerfilService } from '../../core/services/perfil/perfil.service';
@@ -41,6 +42,12 @@ export class PerfilPage implements OnInit {
   private readonly avisos = inject(AvisosService);
   private readonly fb = inject(NonNullableFormBuilder);
   protected readonly sesion = inject(SesionService);
+  private readonly cobrosApi = inject(CobrosService);
+
+  /** ?cobros=listo|reintentar al volver del alta de Stripe */
+  readonly cobros = input<string>();
+  protected readonly estadoCobros = signal<EstadoCobros | null>(null);
+  protected readonly conectandoCobros = signal(false);
 
   protected readonly colores = COLORES_CATEGORIA;
   protected readonly guardando = signal<Seccion | null>(null);
@@ -87,6 +94,31 @@ export class PerfilPage implements OnInit {
 
   ngOnInit(): void {
     void this.perfil.obtener().catch((e) => this.avisos.error(mensajeDeError(e)));
+    void this.cargarCobros();
+  }
+
+  /** Lleva a Stripe a dar de alta (o terminar) la cuenta para cobrar con tarjeta. */
+  protected async conectarCobros(): Promise<void> {
+    this.conectandoCobros.set(true);
+    try {
+      window.location.assign(await this.cobrosApi.conectar());
+    } catch (e) {
+      this.avisos.error(mensajeDeError(e));
+      this.conectandoCobros.set(false);
+    }
+  }
+
+  private async cargarCobros(): Promise<void> {
+    try {
+      const estado = await this.cobrosApi.estado();
+      this.estadoCobros.set(estado);
+      if (this.cobros() === 'listo') {
+        if (estado.listo) this.avisos.exito('¡Listo! Ya te pueden pagar con tarjeta');
+        else this.avisos.info('Stripe todavía revisa tus datos; si falta algo, dale "Terminar alta"');
+      }
+    } catch {
+      this.estadoCobros.set(null);
+    }
   }
 
   protected async cambiarFoto(evento: Event): Promise<void> {

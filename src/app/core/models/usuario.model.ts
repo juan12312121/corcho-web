@@ -11,6 +11,8 @@ export interface Usuario {
   titularCuenta?: string | null;
   /** Privado: solo lo ves tú; los demás ven tu porcentaje para repartir */
   ingresoMensual?: number | null;
+  /** Ya puede recibir pagos con tarjeta (Stripe) */
+  stripeListo?: boolean;
 }
 
 export interface CambiosPerfil {

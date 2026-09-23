@@ -33,6 +33,7 @@ import { CategoriasService } from '../../core/services/categorias/categorias.ser
 import { ComentariosService } from '../../core/services/comentarios/comentarios.service';
 import { PresupuestosService } from '../../core/services/presupuestos/presupuestos.service';
 import { IngresosService } from '../../core/services/ingresos/ingresos.service';
+import { CobrosService } from '../../core/services/cobros/cobros.service';
 import { MetasService } from '../../core/services/metas/metas.service';
 import { InvitacionesService } from '../../core/services/invitaciones/invitaciones.service';
 import { MiembrosService } from '../../core/services/miembros/miembros.service';
@@ -75,6 +76,7 @@ export class TableroStore {
   private readonly archivosApi = inject(ArchivosService);
   private readonly ingresosApi = inject(IngresosService);
   private readonly metasApi = inject(MetasService);
+  private readonly cobrosApi = inject(CobrosService);
   private readonly tiempoReal = inject(TiempoRealService);
   private readonly sesion = inject(SesionService);
   private readonly avisos = inject(AvisosService);
@@ -475,6 +477,20 @@ export class TableroStore {
   // =====================================================================
   // Pagos
   // =====================================================================
+
+  /** Manda al navegador a la página de pago de Stripe (el pago se registra al cobrarse). */
+  async pagarConTarjeta(datos: { aUsuarioId: string; monto: number; notaId?: string; concepto?: string }): Promise<void> {
+    const { url } = await this.cobrosApi.pagar(this.tableroId, datos);
+    window.location.assign(url);
+  }
+
+  /** Regreso de Stripe con ?sesion=…: deja el pago registrado aunque el webhook no haya llegado. */
+  async verificarPagoConTarjeta(tableroId: string, sesion: string): Promise<boolean> {
+    const { pagado, pago } = await this.cobrosApi.verificar(tableroId, sesion);
+    if (pago) this.ponerPago(pago);
+    if (pagado) this.refrescarBalance();
+    return pagado;
+  }
 
   /** Registra (pendientes de confirmar) todos mis pagos del plan para quedar a mano. */
   async liquidarMisDeudas(): Promise<number> {

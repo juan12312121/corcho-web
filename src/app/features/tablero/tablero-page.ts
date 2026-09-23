@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { BalanceCompartido, DatosCategoria, DatosNota, DatosPago, Nota, Pago, ResumenPersonal, Transferencia } from '../../core/models';
 import { AvisosService } from '../../core/services/avisos/avisos.service';
 import { mensajeDeError } from '../../core/utils/errores';
@@ -51,9 +52,13 @@ export class TableroPage {
   protected readonly store = inject(TableroStore);
   private readonly avisos = inject(AvisosService);
   private readonly title = inject(Title);
+  private readonly router = inject(Router);
 
   /** :tableroId de la ruta (withComponentInputBinding) */
   readonly tableroId = input.required<string>();
+  /** Query params al volver de la página de pago de Stripe */
+  readonly pago = input<string>();
+  readonly sesion = input<string>();
 
   // ---------- modales ----------
   protected readonly formularioAbierto = signal(false);
@@ -122,6 +127,10 @@ export class TableroPage {
     effect(() => {
       const notaId = this.notaAbiertaId();
       untracked(() => void this.store.cargarComentarios(notaId).catch((e) => this.avisos.error(mensajeDeError(e))));
+    });
+    effect(() => {
+      const [resultado, sesion, tableroId] = [this.pago(), this.sesion(), this.tableroId()];
+      if (resultado) untracked(() => void this.alVolverDePagar(tableroId, resultado, sesion));
     });
     effect(() => {
       const nombre = this.store.tablero()?.nombre;
@@ -219,6 +228,8 @@ export class TableroPage {
     this.avisos.exito(pago.estado === 'confirmado' ? 'Pago registrado' : `Pago enviado; ${this.store.nombreDe(pago.aUsuarioId)} debe confirmarlo`);
   };
 
+  protected readonly pagarConTarjeta = (datos: { aUsuarioId: string; monto: number; notaId?: string; concepto?: string }) => this.store.pagarConTarjeta(datos);
+
   protected async decidirPago(pago: Pago, confirmar: boolean): Promise<void> {
     try {
       if (confirmar) await this.store.confirmarPago(pago.id);
@@ -241,6 +252,22 @@ export class TableroPage {
     if (accion === 'salir') await this.store.salirme();
     if (accion === 'borrar') await this.store.borrarTablero();
   };
+
+  private async alVolverDePagar(tableroId: string, resultado: string, sesion?: string): Promise<void> {
+    // Quita ?pago=…&sesion=… de la URL para que recargar no lo repita
+    void this.router.navigate([], { queryParams: {}, replaceUrl: true });
+    if (resultado === 'cancelado' || !sesion) {
+      this.avisos.info('Pago cancelado; no se te cobró nada');
+      return;
+    }
+    try {
+      const pagado = await this.store.verificarPagoConTarjeta(tableroId, sesion);
+      if (pagado) this.avisos.exito('¡Pago con tarjeta hecho! Ya quedó registrado');
+      else this.avisos.info('Tu pago se está procesando; aparecerá en cuanto Stripe lo confirme');
+    } catch (e) {
+      this.avisos.error(mensajeDeError(e));
+    }
+  }
 
   private abrirPago(sugerido: PagoSugerido): void {
     this.pagoSugerido.set(sugerido);

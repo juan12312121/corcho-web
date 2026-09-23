@@ -60,6 +60,38 @@
       </form>
     </section>
 
+    <!-- Cobrar con tarjeta (Stripe Connect) -->
+    @if (estadoCobros()?.disponible) {
+      @let c = estadoCobros()!;
+      <section class="tarjeta">
+        <div class="formulario">
+          <h2><app-icono nombre="credit_card" [tamano]="20" /> Cobrar con tarjeta</h2>
+          <p class="explica">
+            Conecta una cuenta de Stripe y en tus tableros te podrán pagar con tarjeta. El dinero llega
+            <strong>directo a tu cuenta bancaria</strong> (Corcho no lo toca) y el pago se confirma solo.
+            La comisión la paga quien te paga.
+          </p>
+          @if (c.listo) {
+            <p class="estado ok"><app-icono nombre="check_circle" [tamano]="18" /> Ya te pueden pagar con tarjeta</p>
+            <div class="pie">
+              @if (c.panel) {
+                <a appBoton variante="secundario" icono="open_in_new" [href]="c.panel" target="_blank" rel="noopener">Ver mis cobros en Stripe</a>
+              }
+            </div>
+          } @else {
+            @if (c.conectado) {
+              <p class="estado pendiente"><app-icono nombre="hourglass_top" [tamano]="18" /> Empezaste el alta pero Stripe todavía no te deja cobrar</p>
+            }
+            <div class="pie">
+              <button appBoton type="button" variante="primario" icono="link" [cargando]="conectandoCobros()" (click)="conectarCobros()">
+                {{ c.conectado ? 'Terminar alta en Stripe' : 'Conectar con Stripe' }}
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
     <!-- Ingreso mensual (reparto proporcional) -->
     <section class="tarjeta">
       <form class="formulario" [formGroup]="ingreso" (ngSubmit)="guardarIngreso()" novalidate>
