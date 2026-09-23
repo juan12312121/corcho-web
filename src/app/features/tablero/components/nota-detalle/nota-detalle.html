@@ -9,6 +9,9 @@
           @if (n.monto !== null) {
             <app-monto [valor]="n.monto" [moneda]="moneda()" tamano="xl" [mostrarMoneda]="true" />
           }
+          @if (n.monedaOriginal) {
+            <p class="original">Pagado en {{ n.monedaOriginal }}: <strong>{{ n.montoOriginal | moneda: n.monedaOriginal }}</strong> a {{ n.tipoCambio }} por {{ n.monedaOriginal }}</p>
+          }
           <div class="etiquetas">
             @if (categoria(); as c) {
               <app-chip-categoria [categoria]="c" />

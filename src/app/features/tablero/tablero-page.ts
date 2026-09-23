@@ -18,6 +18,10 @@ import { PanelCompartido } from './components/panel-compartido/panel-compartido'
 import { PanelPersonal } from './components/panel-personal/panel-personal';
 import { CategoriasModal } from './components/categorias-modal/categorias-modal';
 import { AvancePresupuestos } from './components/avance-presupuestos/avance-presupuestos';
+import { FlujoMes } from './components/flujo-mes/flujo-mes';
+import { ImportarModal } from './components/importar-modal/importar-modal';
+import { LiquidarModal } from './components/liquidar-modal/liquidar-modal';
+import { MetasPanel } from './components/metas-panel/metas-panel';
 import { TableroStore } from './tablero.store';
 
 type Confirmacion = 'compartir' | 'salir' | 'borrar';
@@ -36,6 +40,7 @@ const PASO_Y = 260;
   imports: [
     Boton, Cargando, EstadoVacio, Icono, DialogoConfirmacion, BarraTablero, Corcho, PanelCompartido, PanelPersonal,
     NotaFormulario, NotaDetalle, PagoFormulario, InvitarModal, CategoriasModal, AvancePresupuestos,
+    FlujoMes, MetasPanel, LiquidarModal, ImportarModal,
   ],
   providers: [TableroStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +63,8 @@ export class TableroPage {
   protected readonly pagoSugerido = signal<PagoSugerido | null>(null);
   protected readonly invitarAbierto = signal(false);
   protected readonly categoriasAbierto = signal(false);
+  protected readonly liquidarAbierto = signal(false);
+  protected readonly importarAbierto = signal(false);
   protected readonly confirmacion = signal<Confirmacion | null>(null);
 
   /** La nota abierta se lee del store: si cambia en vivo, el detalle se actualiza solo. */

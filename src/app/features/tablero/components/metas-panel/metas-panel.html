@@ -1,0 +1,63 @@
+<div class="cabeza">
+  <h3><app-icono nombre="flag" [tamano]="18" /> Metas de ahorro</h3>
+  @if (!creando()) {
+    <button type="button" class="enlace" (click)="creando.set(true)">+ Nueva meta</button>
+  }
+</div>
+
+@if (creando()) {
+  <form class="nueva" (ngSubmit)="crear()">
+    <input name="nombre" [(ngModel)]="nueva.nombre" maxlength="60" placeholder="Vacaciones, fondo de emergencia…" aria-label="Nombre de la meta" />
+    <div class="fila">
+      <input name="objetivo" [(ngModel)]="nueva.objetivo" type="number" min="1" step="0.01" inputmode="decimal" placeholder="Objetivo ($)" aria-label="Objetivo" />
+      <input name="fechaLimite" [(ngModel)]="nueva.fechaLimite" type="date" [min]="hoy" aria-label="Para cuándo (opcional)" title="Para cuándo (opcional)" />
+    </div>
+    <div class="colores" role="radiogroup" aria-label="Color">
+      @for (c of colores; track c.valor) {
+        <button type="button" role="radio" [attr.aria-checked]="nueva.color === c.valor" [style.background]="c.css"
+          [attr.aria-label]="c.etiqueta" (click)="nueva.color = c.valor"></button>
+      }
+    </div>
+    <div class="acciones">
+      <button appBoton type="button" variante="fantasma" tamano="s" (click)="creando.set(false)">Cancelar</button>
+      <button appBoton type="submit" variante="primario" tamano="s" icono="check" [cargando]="ocupada() === 'nueva'">Crear</button>
+    </div>
+  </form>
+}
+
+<ul>
+  @for (m of filas(); track m.id) {
+    <li [class.lograda]="m.lograda">
+      <div class="fila-meta">
+        <strong>{{ m.nombre }}</strong>
+        @if (m.lograda) {
+          <span class="insignia"><app-icono nombre="emoji_events" [tamano]="15" /> Lograda</span>
+        }
+        @if (m.puedeBorrar) {
+          <button type="button" class="borrar" (click)="borrar(m)" [attr.aria-label]="'Borrar meta ' + m.nombre"><app-icono nombre="close" [tamano]="16" /></button>
+        }
+      </div>
+      <app-barra-progreso [valor]="m.avance" [color]="m.color" [etiqueta]="'Avance de ' + m.nombre" />
+      <p class="cifras">
+        <span><strong>{{ m.ahorrado | moneda: store.moneda() }}</strong> de {{ m.objetivo | moneda: store.moneda() }}</span>
+        @if (m.fechaLimite) {
+          <span [class.vencida]="m.vencida">{{ m.vencida ? 'Venció' : 'Para' }} el {{ m.fechaLimite | fechaCorta }}</span>
+        }
+      </p>
+      @if (m.porMes) {
+        <p class="consejo">Junta {{ m.porMes | moneda: store.moneda() }} al mes para llegar a tiempo</p>
+      }
+      <form class="aporte" (ngSubmit)="mover(m, 1)">
+        <input [name]="'monto-' + m.id" [(ngModel)]="montos[m.id]" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$" [attr.aria-label]="'Monto para ' + m.nombre" />
+        <button appBoton type="submit" tamano="s" variante="exito" icono="add" [cargando]="ocupada() === m.id">Aportar</button>
+        @if (m.ahorrado > 0) {
+          <button appBoton type="button" tamano="s" variante="fantasma" (click)="mover(m, -1)">Retirar</button>
+        }
+      </form>
+    </li>
+  } @empty {
+    @if (!creando()) {
+      <li class="vacio">¿Ahorran para algo? Crea una meta y vean cuánto llevan.</li>
+    }
+  }
+</ul>

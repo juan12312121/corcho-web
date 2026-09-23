@@ -146,3 +146,29 @@
 
   small { color: var(--texto-tenue); }
 }
+
+.otra-moneda {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radio-m);
+  border: 1px dashed var(--borde-fuerte);
+
+  &.activo { border-style: solid; border-color: var(--tinta-clara); background: color-mix(in srgb, var(--tinta-clara) 25%, transparent); }
+}
+
+.conversion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  select { width: 90px; }
+  input { flex: 1; min-width: 0; }
+  span { font-weight: 800; color: var(--texto-tenue); }
+}
+
+.pista {
+  font-size: 12.5px;
+  color: var(--texto-tenue);
+}

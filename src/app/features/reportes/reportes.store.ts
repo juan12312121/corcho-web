@@ -40,12 +40,13 @@ export class ReportesStore {
 
   readonly porPersona = computed(() => {
     const lista = this.reporte()?.porPersona ?? [];
-    const maximo = Math.max(1, ...lista.map((p) => p.total));
+    const maximo = Math.max(1, ...lista.flatMap((p) => [p.total, p.pagado]));
     return lista.map((p) => ({
       ...p,
       nombre: this.personas().get(p.usuarioId)?.nombre ?? 'Alguien',
       color: this.personas().get(p.usuarioId)?.color ?? '#74777f',
       ancho: (p.total / maximo) * 100,
+      anchoPagado: (p.pagado / maximo) * 100,
     }));
   });
 
@@ -88,6 +89,9 @@ export class ReportesStore {
       ['Por categoría', '', '', '', '', 'Total'],
       ...this.porCategoria().map((c) => [c.nombre, '', '', '', '', c.valor]),
       [],
+      ...(this.esCompartido()
+        ? [['Por persona', '', 'Le tocó', 'Pagó', 'Veces que pagó primero', 'Diferencia'], ...this.porPersona().map((p) => [p.nombre, '', p.total, p.pagado, p.veces, p.diferencia]), []]
+        : []),
       ['Por mes', '', '', '', 'Notas', 'Total'],
       ...r.porMes.map((m) => [nombreMes(m.mes, true), '', '', '', m.cantidad, m.total]),
       [],

@@ -30,6 +30,9 @@
 
   @if (n.monto !== null) {
     <app-monto [valor]="n.monto" [moneda]="moneda()" tamano="l" [mostrarMoneda]="true" />
+    @if (n.monedaOriginal) {
+      <span class="original">{{ n.montoOriginal | moneda: n.monedaOriginal }} · TC {{ n.tipoCambio }}</span>
+    }
   } @else if (n.descripcion) {
     <p class="descripcion">{{ n.descripcion }}</p>
   }

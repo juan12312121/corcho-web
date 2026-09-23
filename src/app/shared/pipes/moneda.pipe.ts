@@ -4,7 +4,12 @@ const formatos = new Map<string, Intl.NumberFormat>();
 
 function formato(moneda: string): Intl.NumberFormat {
   if (!formatos.has(moneda)) {
-    formatos.set(moneda, new Intl.NumberFormat('es-MX', { style: 'currency', currency: moneda, minimumFractionDigits: 2 }));
+    try {
+      formatos.set(moneda, new Intl.NumberFormat('es-MX', { style: 'currency', currency: moneda, minimumFractionDigits: 2 }));
+    } catch {
+      // Código que el navegador no conoce: número con 2 decimales
+      formatos.set(moneda, new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    }
   }
   return formatos.get(moneda)!;
 }

@@ -50,6 +50,7 @@
       <div class="desplegable" role="menu">
         <button role="menuitem" (click)="elegir('categorias')"><app-icono nombre="sell" /> Categorías y presupuestos</button>
         <button role="menuitem" (click)="elegir('archivarSaldadas')"><app-icono nombre="inventory_2" /> Archivar lo saldado</button>
+        <button role="menuitem" (click)="elegir('importar')"><app-icono nombre="upload_file" /> Importar estado de cuenta</button>
         @if (esPersonal() && soyPropietario()) {
           <button role="menuitem" (click)="elegir('compartir')"><app-icono nombre="group_add" /> Convertir en compartido</button>
         }

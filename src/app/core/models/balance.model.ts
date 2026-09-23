@@ -52,6 +52,9 @@ export interface ResumenPersonal {
   tipo: 'personal';
   mes: string;
   gastadoMes: number;
+  /** Flujo del mes: lo que entró y lo que queda (entró − salió) */
+  ingresosMes: number;
+  disponible: number;
   porCategoria: { categoriaId: string | null; nombre: string; icono: string; color: string; total: number }[];
   planes: PlanAMeses[];
   porPagar: TotalYCantidad;

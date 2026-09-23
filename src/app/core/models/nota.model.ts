@@ -37,6 +37,10 @@ export interface Nota {
   planId: string | null;
   /** Total de la compra a meses (monto es la mensualidad de esta nota) */
   montoPlan: number | null;
+  /** Pagada en otra moneda: lo original y el tipo de cambio (monto ya está en la moneda del tablero) */
+  monedaOriginal: string | null;
+  montoOriginal: number | null;
+  tipoCambio: number | null;
   color: ColorNota;
   pinColor: string;
   posX: number;
@@ -97,6 +101,9 @@ export interface DatosNota {
   recurrencia?: Recurrencia;
   contraparte?: string;
   direccion?: Direccion;
+  monedaOriginal?: string | null;
+  montoOriginal?: number;
+  tipoCambio?: number;
   color?: ColorNota;
   pinColor?: string;
   posX?: number;

@@ -9,6 +9,8 @@ export interface Usuario {
   clabe?: string | null;
   banco?: string | null;
   titularCuenta?: string | null;
+  /** Privado: solo lo ves tú; los demás ven tu porcentaje para repartir */
+  ingresoMensual?: number | null;
 }
 
 export interface CambiosPerfil {
@@ -20,6 +22,7 @@ export interface CambiosPerfil {
   clabe?: string | null;
   banco?: string | null;
   titularCuenta?: string | null;
+  ingresoMensual?: number | null;
   password?: string;
   passwordActual?: string;
 }

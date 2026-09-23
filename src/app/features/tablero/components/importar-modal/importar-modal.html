@@ -1,0 +1,89 @@
+<app-modal [abierto]="abierto()" titulo="Importar estado de cuenta" subtitulo="Sube el CSV que exportas de tu banco" icono="upload_file" ancho="l" (cerrar)="cerrar.emit()">
+  <div class="contenido">
+    <label class="archivo">
+      <input type="file" accept=".csv,text/csv,text/plain" (change)="elegir($event)" />
+      <app-icono nombre="upload_file" [tamano]="22" />
+      <span>
+        <strong>{{ archivo() ?? 'Elegir archivo CSV' }}</strong>
+        <small>{{ archivo() ? 'Elegir otro' : 'Fecha, concepto y monto (o columnas de cargo y abono). Máximo ' + 300 + ' movimientos.' }}</small>
+      </span>
+    </label>
+
+    @if (filas().length) {
+      <div class="barra">
+        <span>{{ incluidas().length }} de {{ filas().length }} seleccionados
+          @if (ignoradas()) { · <small>{{ ignoradas() }} filas sin fecha o monto se saltaron</small> }
+        </span>
+        <button type="button" class="enlace" (click)="todas(true)">Todos</button>
+        <button type="button" class="enlace" (click)="todas(false)">Ninguno</button>
+        <label class="general">
+          Categoría para los gastos
+          <select [(ngModel)]="categoriaGeneral" name="categoriaGeneral">
+            <option [ngValue]="null">Sin categoría</option>
+            @for (c of store.categorias(); track c.id) {
+              <option [ngValue]="c.id">{{ c.nombre }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <div class="tabla-caja">
+        <table>
+          <thead>
+            <tr><th></th><th>Fecha</th><th>Concepto</th><th>Tipo</th><th>Categoría</th><th class="num">Monto</th></tr>
+          </thead>
+          <tbody>
+            @for (f of filas(); track f.linea) {
+              <tr [class.fuera]="!f.incluido" [class.ingreso]="f.tipo === 'ingreso'">
+                <td><input type="checkbox" [checked]="f.incluido" (change)="alternar(f)" [disabled]="!store.esPersonal() && f.tipo === 'ingreso'" [attr.aria-label]="'Importar ' + f.titulo" /></td>
+                <td class="fecha">{{ f.fecha | fechaCorta }}</td>
+                <td><input class="concepto" [value]="f.titulo" (change)="cambiar(f, { titulo: $any($event.target).value })" maxlength="120" [attr.aria-label]="'Concepto de la línea ' + f.linea" /></td>
+                <td>
+                  @if (store.esPersonal()) {
+                    <select (change)="cambiar(f, { tipo: $any($event.target).value })" [attr.aria-label]="'Tipo de la línea ' + f.linea">
+                      <option value="gasto" [selected]="f.tipo === 'gasto'">Gasto</option>
+                      <option value="ingreso" [selected]="f.tipo === 'ingreso'">Ingreso</option>
+                    </select>
+                  } @else {
+                    <span>{{ f.tipo === 'gasto' ? 'Gasto' : 'Ingreso (no aplica)' }}</span>
+                  }
+                </td>
+                <td>
+                  @if (f.tipo === 'gasto') {
+                    <select (change)="cambiar(f, { categoriaId: $any($event.target).value || null })" [attr.aria-label]="'Categoría de la línea ' + f.linea">
+                      <option value="">{{ categoriaGeneral ? '(la general)' : '—' }}</option>
+                      @for (c of store.categorias(); track c.id) {
+                        <option [value]="c.id" [selected]="f.categoriaId === c.id">{{ c.nombre }}</option>
+                      }
+                    </select>
+                  }
+                </td>
+                <td class="num">{{ f.tipo === 'gasto' ? '−' : '+' }}{{ f.monto | moneda: store.moneda() }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="resumen">
+        Gastos <strong>{{ totales().gastos | moneda: store.moneda() }}</strong>
+        @if (store.esPersonal()) { · Ingresos <strong>{{ totales().ingresos | moneda: store.moneda() }}</strong> }
+      </p>
+      <p class="ayuda">
+        <app-icono nombre="info" [tamano]="16" />
+        {{ store.esPersonal() ? 'Los gastos importados van directo al archivo: cuentan en tu resumen y reportes sin llenar el corcho.' : 'Los gastos se clavan pagados por ti y repartidos entre todos.' }}
+      </p>
+    }
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+  </div>
+
+  <ng-container pie>
+    <button appBoton type="button" variante="fantasma" (click)="cerrar.emit()">Cancelar</button>
+    <button appBoton type="button" variante="primario" icono="download_done" [cargando]="enviando()" [disabled]="!incluidas().length" (click)="importar()">
+      Importar {{ incluidas().length || '' }}
+    </button>
+  </ng-container>
+</app-modal>

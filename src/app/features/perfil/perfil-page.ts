@@ -14,7 +14,7 @@ import { Icono } from '../../shared/components/icono/icono';
 import { SelectorColor } from '../../shared/components/selector-color/selector-color';
 import { COLORES_CATEGORIA } from '../../shared/constants/opciones';
 
-type Seccion = 'datos' | 'avisos' | 'pago' | 'password';
+type Seccion = 'datos' | 'avisos' | 'pago' | 'ingreso' | 'password';
 
 /** Celular de 10 dígitos (o con lada 52). */
 function validarCelular(control: AbstractControl<string>): ValidationErrors | null {
@@ -61,6 +61,11 @@ export class PerfilPage implements OnInit {
     clabe: ['', validarClabe],
     banco: ['', Validators.maxLength(60)],
     titularCuenta: ['', Validators.maxLength(80)],
+  });
+
+  /** Privado: en los tableros compartidos solo se usa tu porcentaje para repartir */
+  protected readonly ingreso = this.fb.group({
+    mensual: this.fb.control<number | null>(null, [Validators.min(0.01)]),
   });
 
   protected readonly password = this.fb.group(
@@ -125,6 +130,11 @@ export class PerfilPage implements OnInit {
     return this.validarYGuardar('pago', this.pago, cambios, 'Datos de pago guardados');
   }
 
+  protected guardarIngreso(): Promise<void> {
+    const mensual = Number(this.ingreso.getRawValue().mensual);
+    return this.validarYGuardar('ingreso', this.ingreso, { ingresoMensual: mensual > 0 ? mensual : null }, mensual > 0 ? 'Ingreso guardado' : 'Ingreso quitado');
+  }
+
   protected async cambiarPassword(): Promise<void> {
     const { actual, nueva } = this.password.getRawValue();
     await this.validarYGuardar('password', this.password, { password: nueva, passwordActual: actual }, 'Contraseña cambiada');
@@ -171,5 +181,6 @@ export class PerfilPage implements OnInit {
     this.datos.reset({ nombre: u.nombre, color: u.color });
     this.avisosWhatsapp.reset({ telefono: u.telefono ?? '', activos: !!u.avisosWhatsapp });
     this.pago.reset({ clabe: u.clabe ?? '', banco: u.banco ?? '', titularCuenta: u.titularCuenta ?? '' });
+    this.ingreso.reset({ mensual: u.ingresoMensual ?? null });
   }
 }

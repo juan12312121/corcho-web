@@ -9,3 +9,4 @@ export * from './actividad.model';
 export * from './categoria.model';
 export * from './reporte.model';
 export * from './archivo.model';
+export * from './finanzas.model';

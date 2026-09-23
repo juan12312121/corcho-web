@@ -60,15 +60,26 @@
 
           @if (store.esCompartido()) {
             <section class="tarjeta">
-              <h2><app-icono nombre="group" [tamano]="20" /> Lo que le tocó a cada quien</h2>
+              <h2><app-icono nombre="group" [tamano]="20" /> Quién puso y a quién le tocó</h2>
               <ul class="personas">
                 @for (p of store.porPersona(); track p.usuarioId) {
                   <li>
-                    <div class="fila"><span>{{ p.nombre }}</span><strong>{{ p.total | moneda: store.moneda() }}</strong></div>
-                    <div class="barra"><div [style.width.%]="p.ancho" [style.background]="p.color"></div></div>
+                    <div class="fila">
+                      <span>{{ p.nombre }}</span>
+                      <span class="dif" [class.favor]="p.diferencia > 0" [class.contra]="p.diferencia < 0">
+                        {{ p.diferencia > 0 ? 'Adelantó ' + (p.diferencia | moneda: store.moneda()) : p.diferencia < 0 ? 'Le pusieron ' + (-p.diferencia | moneda: store.moneda()) : 'Parejo' }}
+                      </span>
+                    </div>
+                    <div class="barra" [title]="'Le tocó ' + (p.total | moneda: store.moneda())"><div [style.width.%]="p.ancho" [style.background]="p.color"></div></div>
+                    <div class="barra pagado" [title]="'Pagó ' + (p.pagado | moneda: store.moneda())"><div [style.width.%]="p.anchoPagado" [style.background]="p.color"></div></div>
+                    <p class="detalle-persona">
+                      Le tocó <strong>{{ p.total | moneda: store.moneda() }}</strong> · pagó <strong>{{ p.pagado | moneda: store.moneda() }}</strong>
+                      · pagó primero {{ p.veces }} {{ p.veces === 1 ? 'vez' : 'veces' }}
+                    </p>
                   </li>
                 }
               </ul>
+              <p class="leyenda-barras"><span class="muestra"></span> le tocó <span class="muestra pagado"></span> pagó de su bolsa</p>
             </section>
           }
         </div>

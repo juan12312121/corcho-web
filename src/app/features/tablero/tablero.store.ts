@@ -9,7 +9,13 @@ import {
   Categoria,
   Comentario,
   DatosCategoria,
+  DatosIngreso,
+  DatosMeta,
   DatosNota,
+  Ingreso,
+  Meta,
+  Movimiento,
+  ResultadoImportacion,
   DatosInvitacion,
   DatosPago,
   Invitacion,
@@ -26,6 +32,8 @@ import { BalanceService } from '../../core/services/balance/balance.service';
 import { CategoriasService } from '../../core/services/categorias/categorias.service';
 import { ComentariosService } from '../../core/services/comentarios/comentarios.service';
 import { PresupuestosService } from '../../core/services/presupuestos/presupuestos.service';
+import { IngresosService } from '../../core/services/ingresos/ingresos.service';
+import { MetasService } from '../../core/services/metas/metas.service';
 import { InvitacionesService } from '../../core/services/invitaciones/invitaciones.service';
 import { MiembrosService } from '../../core/services/miembros/miembros.service';
 import { NotasService } from '../../core/services/notas/notas.service';
@@ -65,6 +73,8 @@ export class TableroStore {
   private readonly presupuestosApi = inject(PresupuestosService);
   private readonly comentariosApi = inject(ComentariosService);
   private readonly archivosApi = inject(ArchivosService);
+  private readonly ingresosApi = inject(IngresosService);
+  private readonly metasApi = inject(MetasService);
   private readonly tiempoReal = inject(TiempoRealService);
   private readonly sesion = inject(SesionService);
   private readonly avisos = inject(AvisosService);
@@ -86,6 +96,10 @@ export class TableroStore {
   readonly verArchivo = signal(false);
   readonly archivadas = signal<Nota[]>([]);
   readonly cargandoArchivo = signal(false);
+  /** Metas de ahorro del tablero */
+  readonly metas = signal<Meta[]>([]);
+  /** Ingresos (solo tablero personal) */
+  readonly ingresos = signal<Ingreso[]>([]);
   /** Comentarios de la nota abierta en el detalle */
   readonly comentarios = signal<Comentario[]>([]);
   readonly cargando = signal(true);
@@ -132,6 +146,23 @@ export class TableroStore {
       .map((n) => (ajenos[n.id] ? { ...n, posX: ajenos[n.id].posX, posY: ajenos[n.id].posY } : n));
   });
 
+  /**
+   * Lo que me toca pagar en el plan para quedar a mano ("pagar todo lo que debo"),
+   * menos lo que ya mandé y sigue pendiente de confirmar (la misma cuenta que hace el servidor).
+   */
+  readonly misPagosSugeridos = computed(() => {
+    const b = this.balance();
+    if (b?.tipo !== 'compartido') return [];
+    const enCamino = (a: string) =>
+      this.pagos()
+        .filter((p) => p.estado === 'pendiente' && p.deUsuarioId === this.yoId() && p.aUsuarioId === a)
+        .reduce((t, p) => t + Math.round(p.monto * 100), 0);
+    return b.sugerencias
+      .filter((s) => s.de === this.yoId())
+      .map((s) => ({ ...s, monto: (Math.round(s.monto * 100) - enCamino(s.a)) / 100 }))
+      .filter((s) => s.monto > 0);
+  });
+
   /** Pagos que otros me registraron y esperan que yo confirme. */
   readonly pagosPorConfirmar = computed(() => this.pagos().filter((p) => p.estado === 'pendiente' && p.aUsuarioId === this.yoId()));
 
@@ -170,6 +201,7 @@ export class TableroStore {
       this.notas.set(notas);
       this.balance.set(balance);
       if (this.verArchivo()) void this.cargarArchivo();
+      void this.cargarFinanzas(tablero.tipo === 'personal');
       if (tablero.tipo === 'compartido') this.pagos.set(await this.pagosApi.listar(tableroId));
       // El cuarto en vivo no bloquea la carga: si el socket tarda, el tablero ya se ve
       void this.tiempoReal.unirse(tableroId).then((presentes) => this.presentes.set(presentes));
@@ -219,7 +251,14 @@ export class TableroStore {
       this.contarComentario(notaId, -1);
     });
 
-    alTablero(tr.escuchar('balance:cambio')).subscribe(() => this.refrescarBalance());
+    alTablero(tr.escuchar('balance:cambio')).subscribe(() => {
+      this.refrescarBalance();
+      // Un ingreso nuevo (desde otra pestaña) también llega como balance:cambio
+      if (this.esPersonal()) void this.cargarFinanzas(true);
+    });
+    alTablero(tr.escuchar('meta:actualizada')).subscribe((meta) => this.ponerMeta(meta));
+    alTablero(tr.escuchar('meta:borrada')).subscribe(({ id }) => this.metas.update((lista) => lista.filter((m) => m.id !== id)));
+    alTablero(tr.escuchar('notas:importadas')).subscribe(() => void this.recargarNotas());
     alTablero(tr.escuchar('categoria:guardada')).subscribe((c) => this.ponerCategoria(c));
     alTablero(tr.escuchar('categoria:borrada')).subscribe(({ id }) => {
       this.categorias.update((lista) => lista.filter((c) => c.id !== id));
@@ -386,8 +425,64 @@ export class TableroStore {
   }
 
   // =====================================================================
+  // Metas de ahorro
+  // =====================================================================
+
+  async crearMeta(datos: DatosMeta): Promise<void> {
+    this.ponerMeta(await this.metasApi.crear(this.tableroId, datos));
+  }
+
+  /** Monto positivo = aporte; negativo = retiro. */
+  async aportarMeta(metaId: string, monto: number): Promise<Meta> {
+    const meta = await this.metasApi.aportar(this.tableroId, metaId, monto);
+    this.ponerMeta(meta);
+    return meta;
+  }
+
+  async borrarMeta(metaId: string): Promise<void> {
+    await this.metasApi.borrar(this.tableroId, metaId);
+    this.metas.update((lista) => lista.filter((m) => m.id !== metaId));
+  }
+
+  // =====================================================================
+  // Ingresos (flujo del mes, tablero personal)
+  // =====================================================================
+
+  async crearIngreso(datos: DatosIngreso): Promise<void> {
+    const ingreso = await this.ingresosApi.crear(this.tableroId, datos);
+    this.ingresos.update((lista) => [ingreso, ...lista.filter((i) => i.id !== ingreso.id)]);
+    this.refrescarBalance();
+  }
+
+  async borrarIngreso(ingresoId: string): Promise<void> {
+    await this.ingresosApi.borrar(this.tableroId, ingresoId);
+    this.ingresos.update((lista) => lista.filter((i) => i.id !== ingresoId));
+    this.refrescarBalance();
+  }
+
+  // =====================================================================
+  // Importar estado de cuenta
+  // =====================================================================
+
+  async importar(movimientos: Movimiento[]): Promise<ResultadoImportacion> {
+    const resultado = await this.notasApi.importar(this.tableroId, movimientos);
+    await Promise.all([this.recargarNotas(), this.cargarFinanzas(this.esPersonal())]);
+    if (resultado.archivadas && this.verArchivo()) await this.cargarArchivo();
+    this.refrescarBalance();
+    return resultado;
+  }
+
+  // =====================================================================
   // Pagos
   // =====================================================================
+
+  /** Registra (pendientes de confirmar) todos mis pagos del plan para quedar a mano. */
+  async liquidarMisDeudas(): Promise<number> {
+    const { pagos } = await this.pagosApi.liquidarMisDeudas(this.tableroId);
+    for (const pago of pagos) this.ponerPago(pago);
+    return pagos.length;
+  }
+
 
   async registrarPago(datos: DatosPago): Promise<Pago> {
     const pago = await this.pagosApi.registrar(this.tableroId, datos);
@@ -523,6 +618,33 @@ export class TableroStore {
 
   private contarComentario(notaId: string, delta: number): void {
     this.cambiarNota(notaId, (n) => ({ ...n, comentarios: Math.max(0, (n.comentarios ?? 0) + delta) }));
+  }
+
+  private ponerMeta(meta: Meta): void {
+    if (meta.tableroId !== this.tableroId) return;
+    this.metas.update((lista) => (lista.some((m) => m.id === meta.id) ? lista.map((m) => (m.id === meta.id ? meta : m)) : [...lista, meta]));
+  }
+
+  /** Metas (todos los tableros) e ingresos (solo el personal). No bloquean la carga del corcho. */
+  private async cargarFinanzas(conIngresos: boolean): Promise<void> {
+    try {
+      const [metas, ingresos] = await Promise.all([
+        this.metasApi.listar(this.tableroId),
+        conIngresos ? this.ingresosApi.listar(this.tableroId) : Promise.resolve([]),
+      ]);
+      this.metas.set(metas);
+      this.ingresos.set(ingresos);
+    } catch {
+      /* el panel de metas no es crítico: se reintenta con el siguiente cambio */
+    }
+  }
+
+  private async recargarNotas(): Promise<void> {
+    try {
+      this.notas.set(await this.notasApi.listar(this.tableroId));
+    } catch (e) {
+      this.avisos.error(mensajeDeError(e));
+    }
   }
 
   private async cargarArchivo(): Promise<void> {

@@ -1,0 +1,106 @@
+.contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.archivo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 2px dashed var(--borde-fuerte);
+  border-radius: var(--radio-l);
+  color: var(--tinta);
+  cursor: pointer;
+
+  &:hover { border-color: var(--tinta); background: var(--superficie-suave); }
+
+  input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  span { display: flex; flex-direction: column; }
+  small { color: var(--texto-tenue); }
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 14px;
+
+  small { color: var(--texto-tenue); }
+}
+
+.enlace {
+  border: 0;
+  background: none;
+  color: var(--tinta);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
+.general {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-weight: 700;
+}
+
+.tabla-caja {
+  max-height: 46vh;
+  overflow: auto;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-m);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 8px;
+    background: var(--superficie-suave);
+    text-align: left;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--texto-tenue);
+  }
+
+  td { padding: 5px 8px; border-top: 1px solid var(--superficie-media); }
+  .fecha { white-space: nowrap; }
+  .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .concepto { width: 100%; min-width: 160px; }
+  select { max-width: 150px; }
+
+  tr.ingreso .num { color: var(--positivo); font-weight: 800; }
+  tr.fuera td { opacity: 0.45; }
+}
+
+.resumen {
+  text-align: right;
+  font-size: 14px;
+}
+
+.ayuda {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+.error {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--negativo);
+}

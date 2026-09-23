@@ -23,11 +23,15 @@ export class PanelCompartido {
   readonly pagosPorConfirmar = input<Pago[]>([]);
   readonly moneda = input('MXN');
   readonly yoId = input.required<string>();
+  /** Me falta pagar algo del plan (sin contar lo que ya mandé y espera confirmación) */
+  readonly puedoLiquidar = input(false);
 
   readonly pagar = output<Transferencia>();
   readonly confirmar = output<Pago>();
   readonly rechazar = output<Pago>();
   readonly abrirNota = output<string>();
+  /** "Pagar todo lo que debo" */
+  readonly liquidar = output<void>();
 
   protected readonly netos = computed(() =>
     this.balance().netos.map((n) => ({ ...n, miembro: this.miembros().get(n.usuarioId), soyYo: n.usuarioId === this.yoId() })),

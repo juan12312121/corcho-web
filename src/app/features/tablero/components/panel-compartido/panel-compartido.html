@@ -62,6 +62,9 @@
 
 <section>
   <h3><app-icono nombre="auto_awesome" [tamano]="18" /> Para quedar a mano</h3>
+  @if (puedoLiquidar()) {
+    <button appBoton class="liquidar" variante="primario" icono="handshake" [bloque]="true" (click)="liquidar.emit()">Pagar todo lo que debo</button>
+  }
   @for (t of b.sugerencias; track t.de + t.a) {
     <div class="sugerencia">
       <div>

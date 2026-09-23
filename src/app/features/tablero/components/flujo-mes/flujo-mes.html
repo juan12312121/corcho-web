@@ -1,0 +1,59 @@
+@let r = resumen();
+<div class="cabeza">
+  <h3><app-icono nombre="swap_vert" [tamano]="18" /> Flujo del mes</h3>
+  @if (!agregando()) {
+    <button type="button" class="enlace" (click)="agregando.set(true)">+ Ingreso</button>
+  }
+</div>
+
+<div class="cuadros">
+  <div class="cuadro entra">
+    <small>Entró</small>
+    <strong>{{ r.ingresosMes | moneda: store.moneda() }}</strong>
+  </div>
+  <div class="cuadro sale">
+    <small>Salió</small>
+    <strong>{{ r.gastadoMes | moneda: store.moneda() }}</strong>
+  </div>
+  <div class="cuadro queda" [class.negativo]="r.disponible < 0">
+    <small>{{ r.disponible < 0 ? 'Te pasaste' : 'Te queda' }}</small>
+    <strong>{{ (r.disponible < 0 ? -r.disponible : r.disponible) | moneda: store.moneda() }}</strong>
+  </div>
+</div>
+
+@if (r.ingresosMes > 0) {
+  <div class="uso" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="usado() * 100" aria-label="Parte del ingreso ya gastada">
+    <div [style.width.%]="usado() > 1 ? 100 : usado() * 100" [class.alto]="usado() > 0.8"></div>
+  </div>
+  <p class="nota">Llevas gastado el {{ usado() * 100 | number: '1.0-0' }} % de lo que entró</p>
+}
+
+@if (agregando()) {
+  <form class="nuevo" (ngSubmit)="agregar()">
+    <input name="concepto" [(ngModel)]="nuevo.concepto" maxlength="80" placeholder="Sueldo, venta, renta que cobras…" aria-label="Concepto" />
+    <div class="fila">
+      <input name="monto" [(ngModel)]="nuevo.monto" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$" aria-label="Monto" />
+      <input name="fecha" [(ngModel)]="nuevo.fecha" type="date" aria-label="Fecha" />
+    </div>
+    <label class="check"><input type="checkbox" name="recurrente" [(ngModel)]="nuevo.recurrente" /> Se repite cada mes (sueldo)</label>
+    <div class="acciones">
+      <button appBoton type="button" variante="fantasma" tamano="s" (click)="agregando.set(false)">Cancelar</button>
+      <button appBoton type="submit" variante="exito" tamano="s" icono="check" [cargando]="ocupado()">Guardar</button>
+    </div>
+  </form>
+}
+
+@if (lista().length) {
+  <ul>
+    @for (i of lista(); track i.id) {
+      <li>
+        <app-icono [nombre]="i.recurrente ? 'autorenew' : 'south_west'" [tamano]="16" />
+        <span class="concepto">{{ i.concepto }} <small>{{ i.recurrente ? 'cada mes' : (i.fecha | fechaCorta) }}</small></span>
+        <strong>{{ i.monto | moneda: store.moneda() }}</strong>
+        <button type="button" class="borrar" (click)="borrar(i)" [attr.aria-label]="'Quitar ' + i.concepto"><app-icono nombre="close" [tamano]="15" /></button>
+      </li>
+    }
+  </ul>
+} @else if (!agregando()) {
+  <p class="vacio">Registra lo que te entra (tu sueldo, una vez y cada mes) para ver cuánto te queda.</p>
+}

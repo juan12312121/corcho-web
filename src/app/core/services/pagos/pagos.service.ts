@@ -22,6 +22,11 @@ export class PagosService {
     return this.api.post(`/tableros/${tableroId}/pagos/${pagoId}/rechazar`);
   }
 
+  /** "Pagar todo lo que debo": registra mis pagos del plan para quedar a mano (pendientes de confirmar). */
+  liquidarMisDeudas(tableroId: string): Promise<{ pagos: Pago[] }> {
+    return this.api.post(`/tableros/${tableroId}/pagos/liquidar`, {});
+  }
+
   anular(tableroId: string, pagoId: string): Promise<void> {
     return this.api.delete(`/tableros/${tableroId}/pagos/${pagoId}`);
   }

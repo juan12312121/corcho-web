@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { API_URL } from '../../config/api-url.token';
 import { SesionService } from '../sesion/sesion.service';
-import { Categoria, Comentario, Miembro, Nota, Pago, PosicionGuardada, Tablero } from '../../models';
+import { Categoria, Comentario, Meta, Miembro, Nota, Pago, PosicionGuardada, Tablero } from '../../models';
 
 /** Aviso personal: alguien me @mencionó en un comentario. */
 export interface Mencion {
@@ -39,6 +39,9 @@ export interface EventosServidor {
   'comentario:nuevo': Comentario;
   'comentario:borrado': { id: string; notaId: string };
   mencion: Mencion;
+  'meta:actualizada': Meta;
+  'meta:borrada': { id: string };
+  'notas:importadas': { gastos: number; ingresos: number };
   presencia: { tableroId: string; presentes: string[] };
 }
 

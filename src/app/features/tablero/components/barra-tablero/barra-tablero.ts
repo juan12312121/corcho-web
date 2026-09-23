@@ -39,6 +39,7 @@ export class BarraTablero {
   readonly borrar = output<void>();
   readonly categorias = output<void>();
   readonly archivarSaldadas = output<void>();
+  readonly importar = output<void>();
 
   protected readonly menuAbierto = signal(false);
   protected readonly esPersonal = computed(() => this.tablero().tipo === 'personal');
@@ -55,7 +56,7 @@ export class BarraTablero {
     if (this.menuAbierto() && menu && !menu.contains(evento.target as Node)) this.menuAbierto.set(false);
   }
 
-  protected elegir(accion: 'compartir' | 'salir' | 'borrar' | 'categorias' | 'archivarSaldadas'): void {
+  protected elegir(accion: 'compartir' | 'salir' | 'borrar' | 'categorias' | 'archivarSaldadas' | 'importar'): void {
     this.menuAbierto.set(false);
     this[accion].emit();
   }

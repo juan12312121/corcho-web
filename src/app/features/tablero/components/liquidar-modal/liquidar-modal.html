@@ -1,0 +1,44 @@
+<app-modal [abierto]="abierto()" titulo="Pagar todo lo que debo" subtitulo="Con esto quedas a mano con todos" icono="handshake" ancho="s" (cerrar)="cerrar.emit()">
+  <div class="contenido">
+    <p class="explica">
+      Transfiere o paga a cada quien y registra los pagos de una vez. Cada persona confirma cuando le llegue.
+    </p>
+
+    <ul>
+      @for (p of pagos(); track p.a) {
+        <li>
+          <div class="quien">
+            @if (p.miembro) {
+              <app-avatar [persona]="p.miembro" [tamano]="36" />
+            }
+            <span>Le pagas a <strong>{{ p.nombre }}</strong></span>
+            <strong class="monto">{{ p.monto | moneda: store.moneda() }}</strong>
+          </div>
+          @if (p.cuenta) {
+            <app-datos-transferencia [cuenta]="p.cuenta" />
+          } @else {
+            <p class="sin-clabe"><app-icono nombre="info" [tamano]="16" /> {{ p.nombre }} no ha puesto su CLABE; pídesela o paga en efectivo.</p>
+          }
+        </li>
+      } @empty {
+        <li class="vacio"><app-icono nombre="celebration" [tamano]="18" /> No le debes a nadie.</li>
+      }
+    </ul>
+
+    @if (pagos().length > 1) {
+      <p class="total">Total: <strong>{{ total() | moneda: store.moneda() }}</strong></p>
+    }
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+  </div>
+
+  <ng-container pie>
+    <button appBoton type="button" variante="fantasma" (click)="cerrar.emit()">Cancelar</button>
+    @if (pagos().length) {
+      <button appBoton type="button" variante="primario" icono="check" [cargando]="enviando()" (click)="confirmar()">
+        Ya pagué: registrar {{ pagos().length === 1 ? 'el pago' : 'los ' + pagos().length + ' pagos' }}
+      </button>
+    }
+  </ng-container>
+</app-modal>

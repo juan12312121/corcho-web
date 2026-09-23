@@ -33,6 +33,8 @@ export interface Miembro extends Integrante {
   clabe: string | null;
   banco: string | null;
   titularCuenta: string | null;
+  /** % del ingreso total del tablero (el monto es privado); null si no lo registró */
+  pesoIngreso: number | null;
 }
 
 /** Nota en miniatura para la tarjeta del tablero. */

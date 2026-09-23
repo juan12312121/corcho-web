@@ -8,10 +8,42 @@
       </app-campo>
 
       @if (llevaMonto()) {
-        <app-campo [etiqueta]="(esCompraAMeses() ? 'Total de la compra' : esMensualidad() ? 'Esta mensualidad' : 'Monto') + ' (' + moneda() + ')'"
-          [ayuda]="esMensualidad() ? 'Sale del total de la compra; no se edita.' : undefined">
-          <input formControlName="monto" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" />
-        </app-campo>
+        @if (!enOtraMoneda()) {
+          <app-campo [etiqueta]="(esCompraAMeses() ? 'Total de la compra' : esMensualidad() ? 'Esta mensualidad' : 'Monto') + ' (' + moneda() + ')'"
+            [ayuda]="esMensualidad() ? 'Sale del total de la compra; no se edita.' : undefined">
+            <input formControlName="monto" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" />
+          </app-campo>
+        }
+
+        @if (!esMensualidad()) {
+          <div class="otra-moneda" [class.activo]="enOtraMoneda()">
+            <label class="interruptor">
+              <input type="checkbox" formControlName="otraMoneda" />
+              <span><strong>¿Otra moneda?</strong> Viajes o compras en dólares, euros…</span>
+            </label>
+            @if (enOtraMoneda()) {
+              <div class="conversion">
+                <select formControlName="monedaOriginal" aria-label="Moneda">
+                  @for (m of monedasExtranjeras(); track m) {
+                    <option [value]="m">{{ m }}</option>
+                  }
+                </select>
+                <input formControlName="montoOriginal" type="number" min="0" step="0.01" inputmode="decimal" [placeholder]="'Monto en ' + valores().monedaOriginal" aria-label="Monto en la otra moneda" />
+                <span>×</span>
+                <input formControlName="tipoCambio" type="number" min="0" step="0.0001" inputmode="decimal" placeholder="Tipo de cambio" aria-label="Tipo de cambio" />
+              </div>
+              <p class="resumen-meses">
+                @if (buscandoCambio()) {
+                  Buscando el tipo de cambio del día…
+                } @else if (montoConvertido(); as total) {
+                  = <strong>{{ total | moneda: moneda() }}</strong> en el tablero · <small>el tipo de cambio es del día; cámbialo por el que te cobró tu banco</small>
+                } @else {
+                  Escribe el monto y el tipo de cambio
+                }
+              </p>
+            }
+          </div>
+        }
 
         @if (puedeIrAMeses()) {
           <div class="a-meses" [class.activo]="aMeses()">
@@ -105,6 +137,11 @@
         <fieldset class="reparto">
           <legend>¿Entre quién se reparte?</legend>
           <app-control-segmentado etiqueta="Modo de reparto" [opciones]="modosReparto" formControlName="modoReparto" />
+          @if (puedeRepartirPorIngresos()) {
+            <button appBoton type="button" variante="secundario" tamano="s" icono="balance" (click)="repartirPorIngresos()">Según lo que gana cada quien</button>
+          } @else {
+            <p class="pista">¿Repartir según lo que gana cada quien? Cada persona pone su ingreso en su perfil (es privado: aquí solo se usa su porcentaje).</p>
+          }
           <ul formArrayName="participantes">
             @for (grupo of participantes.controls; track grupo.controls.usuarioId.value; let i = $index) {
               @let miembro = miembroDe(grupo.controls.usuarioId.value);
@@ -134,7 +171,7 @@
       <app-nota-adhesiva [color]="valores().color" [pinColor]="valores().pinColor" [rotacion]="-2" class="vista">
         <strong class="mano">{{ valores().titulo || 'Tu nota' }}</strong>
         @if (llevaMonto()) {
-          <span class="monto">{{ (valores().monto || 0) | moneda: moneda() }}</span>
+          <span class="monto">{{ (enOtraMoneda() ? montoConvertido() || 0 : valores().monto || 0) | moneda: moneda() }}</span>
         }
       </app-nota-adhesiva>
 

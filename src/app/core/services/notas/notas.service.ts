@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '../api/api.service';
-import { Adjunto, ArchivoSubido, DatosNota, Nota, Posicion, PosicionGuardada, ResultadoPagarNota } from '../../models';
+import { Adjunto, ArchivoSubido, DatosNota, Movimiento, Nota, Posicion, PosicionGuardada, ResultadoImportacion, ResultadoPagarNota } from '../../models';
 
 export interface FiltrosNotas {
   /** Busca en título, descripción y contraparte */
@@ -46,6 +46,11 @@ export class NotasService {
   /** Manda al archivo todo lo que ya no tiene nada pendiente. */
   archivarSaldadas(tableroId: string): Promise<{ archivadas: number }> {
     return this.api.post(`${this.ruta(tableroId)}/archivar-saldadas`);
+  }
+
+  /** Importa movimientos del estado de cuenta (cargos → gastos, abonos → ingresos). */
+  importar(tableroId: string, movimientos: Movimiento[]): Promise<ResultadoImportacion> {
+    return this.api.post(`${this.ruta(tableroId)}/importar`, { movimientos });
   }
 
   /** Pega a la nota una foto que ya se subió a Cloudinary. */

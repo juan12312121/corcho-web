@@ -60,6 +60,24 @@
       </form>
     </section>
 
+    <!-- Ingreso mensual (reparto proporcional) -->
+    <section class="tarjeta">
+      <form class="formulario" [formGroup]="ingreso" (ngSubmit)="guardarIngreso()" novalidate>
+        <h2><app-icono nombre="balance" [tamano]="20" /> Tu ingreso al mes</h2>
+        <p class="explica">
+          Sirve para repartir gastos <strong>según lo que gana cada quien</strong> (la renta, el súper…). Es privado:
+          en tus tableros los demás solo ven qué porcentaje del total te toca, nunca el monto.
+        </p>
+        <app-campo etiqueta="Ingreso mensual" [opcional]="true" ayuda="Déjalo vacío para no usarlo">
+          <input formControlName="mensual" type="number" min="0" step="0.01" inputmode="decimal" placeholder="25000" />
+        </app-campo>
+        @if (errores().ingreso) {
+          <p class="error" role="alert">{{ errores().ingreso }}</p>
+        }
+        <div class="pie"><button appBoton type="submit" variante="primario" icono="check" [cargando]="guardando() === 'ingreso'">Guardar</button></div>
+      </form>
+    </section>
+
     <!-- Avisos por WhatsApp -->
     <section class="tarjeta">
       <form class="formulario" [formGroup]="avisosWhatsapp" (ngSubmit)="guardarAvisos()" novalidate>
