@@ -1,0 +1,20 @@
+<header class="barra" [class.con-sombra]="conSombra()">
+  <div class="contenido">
+    <app-marca destino="/tableros" />
+
+    <nav class="pestanas" aria-label="Principal">
+      <a routerLink="/tableros" routerLinkActive="activa" [routerLinkActiveOptions]="{ exact: false }" ariaCurrentWhenActive="page">
+        <app-icono nombre="dashboard" [tamano]="18" /> Tableros
+      </a>
+    </nav>
+
+    <div class="derecha">
+      <app-bandeja-invitaciones />
+      <app-menu-usuario />
+    </div>
+  </div>
+</header>
+
+<main>
+  <router-outlet />
+</main>

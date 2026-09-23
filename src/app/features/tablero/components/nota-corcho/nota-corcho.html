@@ -1,0 +1,84 @@
+@let n = nota();
+<app-nota-adhesiva [color]="n.color" [pinColor]="n.pinColor" [rotacion]="n.rotacion" [levantada]="levantada()" [atenuada]="liquidada()">
+  @if (movidaPor()) {
+    <span class="moviendo"><app-icono nombre="pan_tool" [tamano]="14" /> {{ movidaPor() }} moviendo…</span>
+  }
+
+  <div class="arriba">
+    <app-etiqueta [mayusculas]="true">{{ tipo().etiqueta }}</app-etiqueta>
+    @if (porPagar() && n.venceEn) {
+      <app-etiqueta [tono]="vencida() ? 'peligro' : 'aviso'" icono="schedule">{{ n.venceEn | vencimiento }}</app-etiqueta>
+    } @else if (n.recurrencia !== 'ninguna' && !n.planId) {
+      <span class="discreto"><app-icono nombre="autorenew" [tamano]="14" /> {{ n.recurrencia }}</span>
+    } @else {
+      <span class="discreto">{{ n.fecha | fechaCorta }}</span>
+    }
+  </div>
+
+  <h3 class="mano">{{ n.titulo }}</h3>
+
+  @if (categoria() || aMeses()) {
+    <div class="marcas">
+      @if (categoria(); as c) {
+        <app-chip-categoria [categoria]="c" [chico]="true" />
+      }
+      @if (aMeses(); as m) {
+        <span class="meses" [title]="m.total ? 'Total ' + (m.total | moneda: moneda()) : ''"><app-icono nombre="calendar_month" [tamano]="13" /> {{ m.texto }}</span>
+      }
+    </div>
+  }
+
+  @if (n.monto !== null) {
+    <app-monto [valor]="n.monto" [moneda]="moneda()" tamano="l" [mostrarMoneda]="true" />
+  } @else if (n.descripcion) {
+    <p class="descripcion">{{ n.descripcion }}</p>
+  }
+
+  <div class="pie">
+    @if (externa()) {
+      <p class="linea"><strong>{{ n.direccion === 'debo' ? 'Le debo a' : 'Me debe' }} {{ n.contraparte }}</strong></p>
+      <app-barra-progreso [valor]="avanceAbonos()" etiqueta="Abonado" />
+      <p class="linea chica">Abonado {{ n.abonado | moneda: moneda() }} · Falta {{ (n.monto ?? 0) - n.abonado | moneda: moneda() }}</p>
+    } @else if (porPagar() && n.tipo !== 'recordatorio') {
+      <p class="linea alerta"><strong>Por pagar</strong> · {{ n.partes.length }} {{ n.partes.length === 1 ? 'persona' : 'personas' }}</p>
+    } @else if (n.tipo === 'recordatorio') {
+      <p class="linea">
+        @if (liquidada()) {
+          <app-icono nombre="check_circle" [tamano]="16" /> Hecho
+        } @else {
+          <app-icono nombre="radio_button_unchecked" [tamano]="16" /> Pendiente
+        }
+      </p>
+    } @else if (pagador()) {
+      <p class="linea">Pagó: <strong>{{ pagador()!.apodo || pagador()!.nombre }}</strong></p>
+    }
+
+    @if (partes().length > 1) {
+      <div class="partes">
+        @for (p of partes(); track p.usuarioId) {
+          <span class="parte" [class.saldada]="p.liquidada" [title]="p.miembro!.nombre + ': ' + (p.monto | moneda: moneda())">
+            <app-avatar [persona]="p.miembro!" [tamano]="22" />
+          </span>
+        }
+        @if (porCabeza() !== null) {
+          <span class="cu">{{ porCabeza() | moneda: moneda() }} c/u</span>
+        }
+      </div>
+    }
+  </div>
+
+  @if (n.adjuntos.length || n.comentarios) {
+    <div class="extras">
+      @if (n.adjuntos.length) {
+        <span [title]="n.adjuntos.length + (n.adjuntos.length === 1 ? ' foto' : ' fotos')"><app-icono nombre="photo_camera" [tamano]="14" /> {{ n.adjuntos.length }}</span>
+      }
+      @if (n.comentarios) {
+        <span [title]="n.comentarios + (n.comentarios === 1 ? ' comentario' : ' comentarios')"><app-icono nombre="chat_bubble" [tamano]="14" /> {{ n.comentarios }}</span>
+      }
+    </div>
+  }
+
+  @if (liquidada() && n.tipo !== 'recordatorio') {
+    <span class="sello" aria-label="Liquidada">Liquidada</span>
+  }
+</app-nota-adhesiva>

@@ -1,0 +1,76 @@
+.pantalla {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+}
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(440px, 100%);
+  padding: clamp(24px, 5vw, 40px);
+  border-radius: var(--radio-xl);
+  background: var(--fondo);
+  box-shadow: var(--sombra-l);
+
+  h1 { margin-top: 12px; font-size: 26px; color: var(--tinta-oscura); }
+}
+
+.sub {
+  color: var(--texto-suave);
+
+  &.chico { font-size: 14px; }
+}
+
+.icono-grande {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-top: 12px;
+  border-radius: 50%;
+  background: var(--tinta-clara);
+  color: var(--tinta);
+
+  &.exito { background: var(--positivo-fondo); color: var(--positivo); }
+  &.alerta { background: var(--negativo-fondo); color: var(--negativo); }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.error {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--negativo);
+}
+
+.enlace {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tinta);
+  font: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: center;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--texto-suave);
+  text-decoration: none;
+
+  &:hover { color: var(--tinta); }
+}

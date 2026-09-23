@@ -1,0 +1,50 @@
+<app-modal [abierto]="abierto()" [titulo]="'Invitar a ' + (store.tablero()?.nombre ?? '')" subtitulo="Familia o amigos con los que comparten gastos" icono="group_add" (cerrar)="cerrar.emit()">
+  <div class="secciones">
+    <section>
+      <h3><app-icono nombre="link" [tamano]="18" /> Enlace para compartir</h3>
+      <p class="ayuda">Quien lo abra y tenga cuenta entra al tablero. Sirve para 10 personas y vence en 7 días.</p>
+      @if (enlace(); as inv) {
+        <div class="enlace">
+          <code>{{ store.enlaceDe(inv) }}</code>
+          <button appBoton tamano="s" icono="content_copy" (click)="copiar(inv)">Copiar</button>
+          <a appBoton tamano="s" variante="exito" icono="chat" [href]="whatsapp(inv)" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      } @else {
+        <button appBoton variante="calido" icono="add_link" [cargando]="ocupado() === 'enlace'" (click)="crearEnlace()">Crear enlace</button>
+      }
+    </section>
+
+    <section>
+      <h3><app-icono nombre="mail" [tamano]="18" /> Invitar por correo</h3>
+      <form class="correo" (submit)="$event.preventDefault(); invitarPorCorreo()" novalidate>
+        <app-campo etiqueta="Correo de la persona">
+          <input type="email" [formControl]="correo" placeholder="beto@correo.com" autocomplete="email" />
+        </app-campo>
+        <button appBoton type="submit" variante="primario" icono="send" [cargando]="ocupado() === 'correo'">Invitar</button>
+      </form>
+    </section>
+
+    @if (store.invitaciones().length) {
+      <section>
+        <h3><app-icono nombre="schedule" [tamano]="18" /> Pendientes</h3>
+        <ul class="pendientes">
+          @for (inv of store.invitaciones(); track inv.id) {
+            <li>
+              <app-icono [nombre]="inv.email ? 'mail' : 'link'" [tamano]="18" />
+              <span class="quien">{{ inv.email ?? 'Enlace (' + inv.usos + '/' + (inv.usosMax ?? '∞') + ' usos)' }}</span>
+              <app-etiqueta>Vence {{ inv.expiraEn | fechaCorta }}</app-etiqueta>
+              @if (!inv.email) {
+                <button appBoton tamano="s" variante="fantasma" icono="content_copy" (click)="copiar(inv)" aria-label="Copiar enlace"></button>
+              }
+              <button appBoton tamano="s" variante="fantasma" icono="close" (click)="cancelar(inv)" aria-label="Cancelar invitación"></button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+  </div>
+</app-modal>

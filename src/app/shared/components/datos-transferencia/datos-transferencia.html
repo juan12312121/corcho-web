@@ -1,0 +1,18 @@
+@if (cuenta().clabe) {
+  @if (compacto()) {
+    <button type="button" class="chico" (click)="copiar()" [title]="'Copiar CLABE ' + clabe()">
+      <app-icono [nombre]="copiada() ? 'check' : 'content_copy'" [tamano]="15" /> CLABE
+    </button>
+  } @else {
+    <div class="tarjeta">
+      <app-icono class="banco" nombre="account_balance" [tamano]="22" />
+      <div class="datos">
+        <small>Transfiere a {{ cuenta().titularCuenta || cuenta().nombre }}@if (cuenta().banco) { · {{ cuenta().banco }}}</small>
+        <strong class="clabe">{{ clabe() }}</strong>
+      </div>
+      <button type="button" class="copiar" [class.hecho]="copiada()" (click)="copiar()">
+        <app-icono [nombre]="copiada() ? 'check' : 'content_copy'" [tamano]="17" /> {{ copiada() ? 'Copiada' : 'Copiar' }}
+      </button>
+    </div>
+  }
+}

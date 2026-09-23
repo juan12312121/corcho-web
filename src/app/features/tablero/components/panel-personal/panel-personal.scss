@@ -1,0 +1,118 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cabeza {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h2 { font-size: 18px; }
+  p { font-size: 12.5px; color: var(--texto-tenue); }
+}
+
+.icono-caja {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radio-m);
+  background: var(--tinta);
+  color: #fff;
+}
+
+.gastado {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px;
+  border-radius: var(--radio-l);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+
+  span { font-size: 13px; font-weight: 800; color: var(--texto-suave); }
+}
+
+h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tinta-oscura);
+}
+
+.categoria {
+  margin-bottom: 10px;
+}
+
+.fila-cat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.barra {
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 99px;
+  background: var(--superficie-media);
+
+  div {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--madera), var(--acento));
+  }
+}
+
+.cuadros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.cuadro {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 10px;
+  border-radius: var(--radio-m);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  color: var(--texto-suave);
+
+  span { font-size: 11.5px; font-weight: 800; line-height: 1.2; }
+  strong { font-size: 22px; color: var(--texto); }
+  small { font-size: 12px; }
+
+  &.alerta { background: var(--negativo-fondo); border-color: #f6cfcb; color: var(--negativo); }
+}
+
+.deudas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.deuda {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: var(--radio-l);
+
+  span { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800; }
+  &.debo { background: var(--negativo-fondo); color: var(--negativo); }
+  &.favor { background: var(--positivo-fondo); color: var(--positivo); }
+  app-monto { color: inherit; }
+}
+
+.vacio {
+  color: var(--texto-tenue);
+  font-size: 14px;
+}

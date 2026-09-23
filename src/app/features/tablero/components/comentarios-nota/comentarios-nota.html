@@ -1,0 +1,49 @@
+<h3><app-icono nombre="forum" [tamano]="18" /> Comentarios @if (lista().length) {<span class="cuenta">{{ lista().length }}</span>}</h3>
+
+<ul class="hilo">
+  @for (c of lista(); track c.id) {
+    <li [class.mio]="c.esMio">
+      <app-avatar [persona]="c.persona" [tamano]="30" />
+      <div class="globo">
+        <div class="quien">
+          <strong>{{ c.esMio ? 'Tú' : c.autor }}</strong>
+          <small>{{ c.cuando }}</small>
+          @if (c.puedoBorrar) {
+            <button type="button" class="borrar" (click)="borrar(c)" aria-label="Borrar comentario"><app-icono nombre="delete" [tamano]="15" /></button>
+          }
+        </div>
+        <p>@for (t of c.trozos; track $index) {<span [class.mencion]="t.mencion">{{ t.texto }}</span>}</p>
+      </div>
+    </li>
+  } @empty {
+    <li class="vacio">Nadie ha comentado. Pregunta, aclara o avisa: “&#64;Beto ya te transferí”.</li>
+  }
+</ul>
+
+<div class="redactar">
+  <div class="caja">
+    <label class="solo-lector" for="nuevo-comentario">Escribe un comentario</label>
+    <textarea #campo id="nuevo-comentario" rows="2" maxlength="1000"
+      [placeholder]="store.esPersonal() ? 'Una nota para ti…' : 'Escribe… usa @ para mencionar'"
+      (input)="alEscribir(campo)" (click)="alEscribir(campo)" (keydown)="alTeclear($event, campo)" (blur)="buscando.set(null)"
+      role="combobox" [attr.aria-expanded]="sugerencias().length > 0" aria-controls="sugerencias-mencion" aria-autocomplete="list"></textarea>
+
+    @if (sugerencias().length) {
+      <ul id="sugerencias-mencion" class="sugerencias" role="listbox" aria-label="Mencionar a">
+        @for (m of sugerencias(); track m.usuarioId) {
+          <li role="option" [attr.aria-selected]="$index === resaltada()" [class.activa]="$index === resaltada()"
+            (mousedown)="$event.preventDefault(); mencionar(m, campo)">
+            <app-avatar [persona]="m" [tamano]="24" />
+            <span>{{ nombre(m) }}</span>
+            @if (m.apodo) {<small>{{ m.nombre }}</small>}
+          </li>
+        }
+      </ul>
+    }
+  </div>
+  <button appBoton variante="primario" icono="send" [cargando]="enviando()" [disabled]="!texto().trim()" (click)="enviar(campo)" aria-label="Enviar comentario"></button>
+</div>
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

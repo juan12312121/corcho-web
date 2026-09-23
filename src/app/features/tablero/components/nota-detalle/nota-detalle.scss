@@ -1,0 +1,138 @@
+.detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border-radius: var(--radio-l);
+  background: color-mix(in srgb, var(--papel) 55%, white);
+}
+
+.etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+
+  div { display: flex; gap: 8px; }
+  dt { color: var(--texto-tenue); min-width: 48px; }
+  dd { margin: 0; font-weight: 700; }
+  small { font-weight: 600; color: var(--texto-tenue); }
+}
+
+.descripcion {
+  color: var(--texto-suave);
+}
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  h3 {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tinta-oscura);
+  }
+}
+
+.resumen {
+  font-size: 14px;
+}
+
+.abono,
+.fila-pago {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  input,
+  select {
+    flex: 1;
+    min-width: 160px;
+    padding: 10px 12px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-m);
+    background: var(--superficie);
+  }
+}
+
+.partes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-m);
+  background: var(--superficie);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+
+    & + li { border-top: 1px solid var(--borde); }
+  }
+
+  .quien { flex: 1; font-weight: 700; }
+}
+
+.pagar {
+  padding: 14px;
+  border-radius: var(--radio-l);
+  background: var(--positivo-fondo);
+}
+
+.confirmar {
+  margin-right: auto;
+  align-self: center;
+  font-weight: 800;
+  color: var(--negativo);
+}
+
+.izquierda {
+  margin-right: auto;
+}
+
+.plan {
+  padding: 14px;
+  border-radius: var(--radio-l);
+  background: color-mix(in srgb, var(--tinta-clara) 40%, white);
+}
+
+.plan-cifras {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  div { display: flex; flex-direction: column; }
+  small { font-size: 12px; color: var(--texto-tenue); font-weight: 700; }
+  strong { font-size: 16px; }
+}
+
+.archivada {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radio-m);
+  background: var(--superficie-media);
+  color: var(--texto-suave);
+  font-size: 14px;
+  font-weight: 700;
+}

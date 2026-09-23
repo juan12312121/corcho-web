@@ -1,0 +1,105 @@
+@if (sesion.usuario(); as u) {
+  <div class="pagina">
+    <header class="encabezado">
+      <h1>Mi perfil</h1>
+      <p>Así te ven en tus tableros y así te pueden pagar.</p>
+    </header>
+
+    <!-- Foto, nombre y color -->
+    <section class="tarjeta">
+      <div class="foto">
+        <app-avatar [persona]="u" [tamano]="96" />
+        <div class="acciones-foto">
+          <label class="subir" [class.ocupado]="subiendoFoto()">
+            <input type="file" accept="image/*" (change)="cambiarFoto($event)" [disabled]="subiendoFoto()" />
+            <app-icono [nombre]="subiendoFoto() ? 'progress_activity' : 'photo_camera'" [tamano]="18" />
+            {{ subiendoFoto() ? 'Subiendo…' : 'Cambiar foto' }}
+          </label>
+          @if (u.avatarUrl) {
+            <button appBoton type="button" variante="fantasma" tamano="s" (click)="quitarFoto()">Quitar</button>
+          }
+        </div>
+      </div>
+
+      <form class="formulario" [formGroup]="datos" (ngSubmit)="guardarDatos()" novalidate>
+        <h2><app-icono nombre="badge" [tamano]="20" /> Tus datos</h2>
+        <app-campo etiqueta="Nombre" [error]="errorDe(datos, 'nombre')">
+          <input formControlName="nombre" autocomplete="name" maxlength="80" />
+        </app-campo>
+        <app-campo etiqueta="Correo" ayuda="El correo no se puede cambiar">
+          <input [value]="u.email" disabled />
+        </app-campo>
+        <app-selector-color formControlName="color" [opciones]="colores" etiqueta="Tu color (para tus iniciales y tus pagos)" />
+        @if (errores().datos) {
+          <p class="error" role="alert">{{ errores().datos }}</p>
+        }
+        <div class="pie"><button appBoton type="submit" variante="primario" icono="check" [cargando]="guardando() === 'datos'">Guardar</button></div>
+      </form>
+    </section>
+
+    <!-- Datos para que me paguen -->
+    <section class="tarjeta">
+      <form class="formulario" [formGroup]="pago" (ngSubmit)="guardarPago()" novalidate>
+        <h2><app-icono nombre="account_balance" [tamano]="20" /> Para que te paguen</h2>
+        <p class="explica">Tu CLABE aparece a los miembros de tus tableros compartidos cuando te van a pagar, con un botón para copiarla.</p>
+        <app-campo etiqueta="CLABE interbancaria" [error]="errorDe(pago, 'clabe')" [opcional]="true" ayuda="18 dígitos; el banco se detecta solo">
+          <input formControlName="clabe" inputmode="numeric" maxlength="24" placeholder="072 180 00123456789 7" autocomplete="off" />
+        </app-campo>
+        <div class="dos">
+          <app-campo etiqueta="Banco" [opcional]="true">
+            <input formControlName="banco" maxlength="60" placeholder="Se llena solo" />
+          </app-campo>
+          <app-campo etiqueta="Titular de la cuenta" [opcional]="true">
+            <input formControlName="titularCuenta" maxlength="80" [placeholder]="u.nombre" />
+          </app-campo>
+        </div>
+        @if (errores().pago) {
+          <p class="error" role="alert">{{ errores().pago }}</p>
+        }
+        <div class="pie"><button appBoton type="submit" variante="primario" icono="check" [cargando]="guardando() === 'pago'">Guardar</button></div>
+      </form>
+    </section>
+
+    <!-- Avisos por WhatsApp -->
+    <section class="tarjeta">
+      <form class="formulario" [formGroup]="avisosWhatsapp" (ngSubmit)="guardarAvisos()" novalidate>
+        <h2><app-icono nombre="chat" [tamano]="20" /> Avisos por WhatsApp</h2>
+        <p class="explica">Te escribimos un día antes de que venza un recibo o una mensualidad, con lo que te toca pagar.</p>
+        <app-campo etiqueta="Celular" [error]="errorDe(avisosWhatsapp, 'telefono')" [opcional]="true" ayuda="A 10 dígitos; solo se usa para avisarte">
+          <input formControlName="telefono" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="55 1234 5678" />
+        </app-campo>
+        <label class="interruptor">
+          <input type="checkbox" formControlName="activos" role="switch" />
+          <span class="pista" aria-hidden="true"></span>
+          Quiero recibir avisos de vencimientos
+        </label>
+        @if (errores().avisos) {
+          <p class="error" role="alert">{{ errores().avisos }}</p>
+        }
+        <div class="pie"><button appBoton type="submit" variante="primario" icono="check" [cargando]="guardando() === 'avisos'">Guardar</button></div>
+      </form>
+    </section>
+
+    <!-- Contraseña -->
+    <section class="tarjeta">
+      <form class="formulario" [formGroup]="password" (ngSubmit)="cambiarPassword()" novalidate>
+        <h2><app-icono nombre="lock" [tamano]="20" /> Contraseña</h2>
+        <app-campo etiqueta="Contraseña actual" [error]="errorDe(password, 'actual')">
+          <input formControlName="actual" type="password" autocomplete="current-password" />
+        </app-campo>
+        <div class="dos">
+          <app-campo etiqueta="Nueva contraseña" [error]="errorDe(password, 'nueva')" ayuda="Mínimo 8 caracteres">
+            <input formControlName="nueva" type="password" autocomplete="new-password" />
+          </app-campo>
+          <app-campo etiqueta="Repítela" [error]="errorDe(password, 'repetir')">
+            <input formControlName="repetir" type="password" autocomplete="new-password" />
+          </app-campo>
+        </div>
+        @if (errores().password) {
+          <p class="error" role="alert">{{ errores().password }}</p>
+        }
+        <div class="pie"><button appBoton type="submit" variante="primario" icono="key" [cargando]="guardando() === 'password'">Cambiar contraseña</button></div>
+      </form>
+    </section>
+  </div>
+}

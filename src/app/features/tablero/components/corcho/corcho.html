@@ -1,0 +1,17 @@
+<div class="marco marco-madera">
+  <div class="desplazable">
+    <div class="lienzo textura-corcho" [style.width.px]="tamano().ancho" [style.height.px]="tamano().alto">
+      @for (nota of notas(); track nota.id) {
+        <div class="lugar" appArrastrable tabindex="0" role="button"
+          [attr.aria-label]="nota.titulo + '. Enter para abrir, flechas para mover'"
+          [style.left.px]="nota.posX" [style.top.px]="nota.posY" [style.z-index]="arrastrandoId() === nota.id ? 10000 : nota.z"
+          [posicion]="nota" (iniciado)="arrastrandoId.set(nota.id)" (moviendo)="alMover(nota, $event)"
+          (soltado)="alSoltar(nota, $event)" (clic)="abrir.emit(nota)" (keydown)="alTeclear($event, nota)">
+          <app-nota-corcho [nota]="nota" [miembros]="miembros()" [categorias]="categorias()" [moneda]="moneda()"
+            [levantada]="arrastrandoId() === nota.id || !!movidasPor()[nota.id]" [movidaPor]="movidasPor()[nota.id] ?? null" />
+        </div>
+      }
+      <ng-content />
+    </div>
+  </div>
+</div>

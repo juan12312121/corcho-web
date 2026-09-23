@@ -1,0 +1,22 @@
+<app-modal [abierto]="abierto()" titulo="Nuevo tablero" subtitulo="Clava un corcho nuevo" icono="push_pin" (cerrar)="cerrar.emit()">
+  <form id="form-nuevo-tablero" class="formulario" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+    <app-control-segmentado etiqueta="Tipo de tablero" [grande]="true" [opciones]="tipos" formControlName="tipo" />
+
+    <app-campo etiqueta="Nombre" [error]="errorNombre()">
+      <input formControlName="nombre" placeholder="Casa, Viaje a Oaxaca, Mis finanzas…" maxlength="80" />
+    </app-campo>
+
+    <app-campo etiqueta="Descripción" [opcional]="true">
+      <textarea formControlName="descripcion" rows="2" placeholder="¿Para qué es este corcho?"></textarea>
+    </app-campo>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+  </form>
+
+  <ng-container pie>
+    <button appBoton type="button" variante="fantasma" (click)="cerrar.emit()">Cancelar</button>
+    <button appBoton type="submit" form="form-nuevo-tablero" variante="primario" icono="push_pin" [cargando]="enviando()">Clavar tablero</button>
+  </ng-container>
+</app-modal>

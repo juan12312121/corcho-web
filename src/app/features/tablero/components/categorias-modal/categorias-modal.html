@@ -1,0 +1,50 @@
+<app-modal [abierto]="abierto()" titulo="Categorías" subtitulo="Personaliza en qué se va el dinero y ponle tope al mes" icono="sell" (cerrar)="cerrar.emit()">
+  <ul class="lista">
+    @for (c of store.categorias(); track c.id) {
+      @let tope = store.presupuestosPorCategoria().get(c.id);
+      <li>
+        @if (editando() === c.id) {
+          <app-formulario-categoria class="edicion" [categoria]="c" [guardar]="guardarCambios(c)" (cancelar)="editando.set(null)" />
+        } @else {
+          <div class="fila">
+            <app-chip-categoria [categoria]="c" />
+            <span class="uso">{{ enUso().get(c.id) ?? 0 }} notas</span>
+            @if (store.soyAdmin()) {
+              <button type="button" class="tope" [class.puesto]="tope" (click)="editarTope(c.id, tope?.limite ?? null)"
+                [attr.aria-label]="'Presupuesto de ' + c.nombre">
+                <app-icono nombre="savings" [tamano]="15" />
+                {{ tope ? (tope.limite | moneda: store.moneda()) + '/mes' : 'Tope' }}
+              </button>
+            }
+            @if (puedeModificar(c)) {
+              <button appBoton variante="fantasma" tamano="s" icono="edit" (click)="editando.set(c.id)" [attr.aria-label]="'Editar ' + c.nombre"></button>
+              <button appBoton variante="fantasma" tamano="s" icono="delete" (click)="quitar(c)" [attr.aria-label]="'Quitar ' + c.nombre"></button>
+            }
+          </div>
+
+          @if (topeEditando() === c.id) {
+            <form class="editor-tope" (ngSubmit)="guardarTope(c)">
+              <label for="tope-{{ c.id }}">Máximo al mes en {{ c.nombre }}</label>
+              <div class="controles">
+                <input id="tope-{{ c.id }}" name="montoTope" type="number" min="1" step="1" inputmode="decimal" placeholder="4000"
+                  [(ngModel)]="montoTope" />
+                <button appBoton type="submit" variante="primario" tamano="s" icono="check" [cargando]="guardandoTope()">Guardar</button>
+                @if (tope) {
+                  <button appBoton type="button" variante="fantasma" tamano="s" (click)="quitarTope(tope.presupuestoId)">Quitar tope</button>
+                }
+                <button appBoton type="button" variante="fantasma" tamano="s" (click)="topeEditando.set(null)">Cancelar</button>
+              </div>
+              <small>Te avisamos al llegar al 80 % y si te pasas.</small>
+            </form>
+          }
+        }
+      </li>
+    }
+  </ul>
+
+  @if (editando() === 'nueva') {
+    <app-formulario-categoria [guardar]="crear" (cancelar)="editando.set(null)" />
+  } @else {
+    <button appBoton variante="calido" icono="add" (click)="editando.set('nueva')">Nueva categoría</button>
+  }
+</app-modal>

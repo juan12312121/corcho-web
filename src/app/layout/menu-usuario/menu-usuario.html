@@ -1,0 +1,23 @@
+@if (sesion.usuario(); as usuario) {
+  <button type="button" class="disparador" [class.abierto]="abierto()" (click)="abierto.set(!abierto())"
+    [attr.aria-expanded]="abierto()" aria-haspopup="menu" [attr.aria-label]="'Menú de ' + usuario.nombre">
+    <app-avatar [persona]="usuario" [tamano]="34" />
+    <span class="nombre">{{ usuario.nombre }}</span>
+    <app-icono class="flecha" nombre="expand_more" [tamano]="20" />
+  </button>
+
+  @if (abierto()) {
+    <div class="menu" role="menu">
+      <div class="quien">
+        <app-avatar [persona]="usuario" [tamano]="44" />
+        <div>
+          <strong>{{ usuario.nombre }}</strong>
+          <small>{{ usuario.email }}</small>
+        </div>
+      </div>
+      <a role="menuitem" routerLink="/tableros" (click)="abierto.set(false)"><app-icono nombre="dashboard" /> Mis tableros</a>
+      <a role="menuitem" routerLink="/perfil" (click)="abierto.set(false)"><app-icono nombre="manage_accounts" /> Mi perfil</a>
+      <button role="menuitem" type="button" class="salir" (click)="salir()"><app-icono nombre="logout" /> Cerrar sesión</button>
+    </div>
+  }
+}

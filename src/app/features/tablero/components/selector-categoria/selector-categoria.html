@@ -1,0 +1,17 @@
+<div class="chips" role="radiogroup" aria-label="Categoría">
+  <button type="button" role="radio" class="chip" [attr.aria-checked]="valor() === null" (click)="elegir(null)">
+    <app-icono nombre="label_off" [tamano]="16" /> Sin categoría
+  </button>
+  @for (c of categorias(); track c.id) {
+    <button type="button" role="radio" class="chip" [style.--color]="c.color" [attr.aria-checked]="valor() === c.id" (click)="elegir(c.id)">
+      <app-icono [nombre]="c.icono" [tamano]="16" /> {{ c.nombre }}
+    </button>
+  }
+  @if (!creando()) {
+    <button type="button" class="chip nueva" (click)="creando.set(true)"><app-icono nombre="add" [tamano]="16" /> Nueva</button>
+  }
+</div>
+
+@if (creando()) {
+  <app-formulario-categoria [guardar]="crearYElegir" (cancelar)="creando.set(false)" />
+}

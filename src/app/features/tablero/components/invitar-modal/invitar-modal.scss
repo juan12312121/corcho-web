@@ -1,0 +1,79 @@
+.secciones {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tinta-oscura);
+}
+
+.ayuda {
+  font-size: 14px;
+  color: var(--texto-tenue);
+}
+
+.enlace {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px;
+  border-radius: var(--radio-m);
+  background: var(--superficie);
+  border: 1px dashed var(--borde-fuerte);
+
+  code {
+    flex: 1;
+    min-width: 180px;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+}
+
+.correo {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+
+  app-campo { flex: 1; }
+}
+
+.pendientes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-m);
+  background: var(--superficie);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+
+    & + li { border-top: 1px solid var(--borde); }
+  }
+
+  .quien {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+}

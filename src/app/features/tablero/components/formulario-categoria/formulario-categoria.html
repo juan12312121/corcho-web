@@ -1,0 +1,29 @@
+<div class="caja" [formGroup]="formulario">
+  <div class="fila-nombre">
+    <label class="solo-lector" for="nombre-categoria">Nombre de la categoría</label>
+    <input id="nombre-categoria" formControlName="nombre" maxlength="40" placeholder="Mascotas, Escuela, Tanda…" (keydown.enter)="$event.preventDefault(); enviar()" />
+    <app-chip-categoria [categoria]="{ nombre: vista().nombre || 'Vista previa', icono: vista().icono, color: vista().color }" />
+  </div>
+
+  <div class="iconos" role="radiogroup" aria-label="Ícono">
+    @for (icono of iconos; track icono) {
+      <button type="button" role="radio" [attr.aria-checked]="vista().icono === icono" [attr.aria-label]="icono"
+        (click)="formulario.controls.icono.setValue(icono)">
+        <app-icono [nombre]="icono" [tamano]="20" />
+      </button>
+    }
+  </div>
+
+  <app-selector-color formControlName="color" [opciones]="colores" [chico]="true" etiqueta="Color de la categoría" />
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <div class="acciones">
+    <button appBoton type="button" variante="fantasma" tamano="s" (click)="cancelar.emit()">Cancelar</button>
+    <button appBoton type="button" variante="primario" tamano="s" icono="check" [cargando]="enviando()" (click)="enviar()">
+      {{ categoria() ? 'Guardar' : 'Crear categoría' }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,162 @@
+<app-modal [abierto]="abierto()" [titulo]="titulo()" [subtitulo]="esPersonal() ? 'Tablero personal' : 'Tablero compartido'" icono="sticky_note_2" ancho="l" (cerrar)="cerrar.emit()">
+  <form id="form-nota" class="rejilla" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+    <div class="columna formulario">
+      <app-control-segmentado etiqueta="Tipo de nota" [opciones]="tipos()" formControlName="tipo" />
+
+      <app-campo etiqueta="Título" [error]="errorTitulo()">
+        <input formControlName="titulo" maxlength="120" placeholder="Súper del sábado, Luz, Préstamo a Juan…" />
+      </app-campo>
+
+      @if (llevaMonto()) {
+        <app-campo [etiqueta]="(esCompraAMeses() ? 'Total de la compra' : esMensualidad() ? 'Esta mensualidad' : 'Monto') + ' (' + moneda() + ')'"
+          [ayuda]="esMensualidad() ? 'Sale del total de la compra; no se edita.' : undefined">
+          <input formControlName="monto" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" />
+        </app-campo>
+
+        @if (puedeIrAMeses()) {
+          <div class="a-meses" [class.activo]="aMeses()">
+            <label class="interruptor">
+              <input type="checkbox" formControlName="aMeses" />
+              <span><strong>¿A meses?</strong> {{ tipo() === 'prestamo' ? 'Se paga en mensualidades' : 'Compra en mensualidades (meses sin intereses)' }}</span>
+            </label>
+            @if (aMeses()) {
+              <div class="plazo">
+                <label for="plazo-meses">Plazo</label>
+                <input id="plazo-meses" formControlName="plazoMeses" type="number" min="2" max="60" list="plazos-comunes" />
+                <span>meses</span>
+                <datalist id="plazos-comunes">
+                  @for (p of plazos; track p) {
+                    <option [value]="p"></option>
+                  }
+                </datalist>
+              </div>
+              @if (vistaMensualidades(); as m) {
+                <p class="resumen-meses">
+                  {{ m.meses }} mensualidades de <strong>{{ m.primera | moneda: moneda() }}</strong>
+                  @if (m.ultima !== m.primera) { <small>(la última de {{ m.ultima | moneda: moneda() }})</small> }
+                  @if (esCompraAMeses()) { · se clava una nota por mensualidad }
+                </p>
+              }
+            }
+          </div>
+        }
+
+        <div class="grupo" role="group" aria-labelledby="etiqueta-categoria">
+          <span class="grupo-etiqueta" id="etiqueta-categoria">Categoría <small>(opcional)</small></span>
+          <app-selector-categoria formControlName="categoriaId" [categorias]="categorias()" [crear]="crearCategoria()" />
+        </div>
+      } @else {
+        <app-campo etiqueta="Detalle" [opcional]="true">
+          <textarea formControlName="descripcion" rows="2" placeholder="¿Qué hay que hacer?"></textarea>
+        </app-campo>
+      }
+
+      @if (esDeudaExterna()) {
+        <div class="fila">
+          <app-campo etiqueta="¿Con quién?">
+            <input formControlName="contraparte" maxlength="80" placeholder="Juan, Mamá, la tienda…" />
+          </app-campo>
+          <app-campo etiqueta="¿Quién debe?">
+            <select formControlName="direccion">
+              <option value="debo">Yo le debo</option>
+              <option value="me_deben">Me debe a mí</option>
+            </select>
+          </app-campo>
+        </div>
+      }
+
+      <div class="fila">
+        <app-campo etiqueta="Fecha">
+          <input formControlName="fecha" type="date" />
+        </app-campo>
+        @if (esDeudaExterna() && aMeses()) {
+          <app-campo etiqueta="Primer pago" [opcional]="true">
+            <input formControlName="venceEn" type="date" />
+          </app-campo>
+        }
+        @if (llevaMonto() && !esDeudaExterna()) {
+          <app-campo [etiqueta]="esCompraAMeses() ? 'Primer pago' : 'Vence'" [opcional]="true">
+            <input formControlName="venceEn" type="date" />
+          </app-campo>
+          @if (!aMeses() && !esMensualidad()) {
+          <app-campo etiqueta="Se repite">
+            <select formControlName="recurrencia">
+              @for (r of recurrencias; track r.valor) {
+                <option [value]="r.valor">{{ r.etiqueta }}</option>
+              }
+            </select>
+          </app-campo>
+          }
+        }
+      </div>
+
+      @if (seReparte()) {
+        <app-campo etiqueta="¿Quién pagó?" ayuda="Si nadie ha pagado el recibo todavía, queda “por pagar”.">
+          <select formControlName="pagadoPor">
+            @if (!editando() || nota()?.estado === 'por_pagar') {
+              <option [value]="nadie">Nadie aún — por pagar</option>
+            }
+            @for (m of miembros(); track m.usuarioId) {
+              <option [value]="m.usuarioId">{{ m.usuarioId === yoId() ? 'Yo' : (m.apodo || m.nombre) }}</option>
+            }
+          </select>
+        </app-campo>
+
+        <fieldset class="reparto">
+          <legend>¿Entre quién se reparte?</legend>
+          <app-control-segmentado etiqueta="Modo de reparto" [opciones]="modosReparto" formControlName="modoReparto" />
+          <ul formArrayName="participantes">
+            @for (grupo of participantes.controls; track grupo.controls.usuarioId.value; let i = $index) {
+              @let miembro = miembroDe(grupo.controls.usuarioId.value);
+              <li [formGroupName]="i" [class.fuera]="!grupo.controls.incluido.value">
+                <label class="quien">
+                  <input type="checkbox" formControlName="incluido" />
+                  @if (miembro) {
+                    <app-avatar [persona]="miembro" [tamano]="28" />
+                    <span>{{ miembro.usuarioId === yoId() ? 'Yo' : (miembro.apodo || miembro.nombre) }}</span>
+                  }
+                </label>
+                @if (valores().modoReparto !== 'igual' && grupo.controls.incluido.value) {
+                  <input class="valor" formControlName="valor" type="number" min="0" step="0.01"
+                    [attr.aria-label]="'Valor para ' + miembro?.nombre"
+                    [placeholder]="valores().modoReparto === 'porcentaje' ? '%' : valores().modoReparto === 'proporcion' ? '1' : '$'" />
+                }
+                <strong class="toca">{{ (vistaReparto().get(grupo.controls.usuarioId.value) ?? 0) | moneda: moneda() }}</strong>
+              </li>
+            }
+          </ul>
+        </fieldset>
+      }
+    </div>
+
+    <aside class="columna">
+      <p class="rotulo">Así se verá</p>
+      <app-nota-adhesiva [color]="valores().color" [pinColor]="valores().pinColor" [rotacion]="-2" class="vista">
+        <strong class="mano">{{ valores().titulo || 'Tu nota' }}</strong>
+        @if (llevaMonto()) {
+          <span class="monto">{{ (valores().monto || 0) | moneda: moneda() }}</span>
+        }
+      </app-nota-adhesiva>
+
+      <div class="grupo">
+        <span class="grupo-etiqueta">Color de la nota</span>
+        <app-selector-color formControlName="color" [opciones]="coloresNota" etiqueta="Color de la nota" />
+      </div>
+      <div class="grupo">
+        <span class="grupo-etiqueta">Color de la chinche</span>
+        <app-selector-color formControlName="pinColor" [opciones]="coloresChinche" [chico]="true" etiqueta="Color de la chinche" />
+      </div>
+    </aside>
+  </form>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <ng-container pie>
+    <button appBoton type="button" variante="fantasma" (click)="cerrar.emit()">Cancelar</button>
+    <button appBoton type="submit" form="form-nota" variante="primario" icono="push_pin" [cargando]="enviando()">
+      {{ editando() ? 'Guardar cambios' : 'Clavar nota' }}
+    </button>
+  </ng-container>
+</app-modal>

@@ -1,0 +1,16 @@
+<div class="segmentos" [class.grande]="grande()" role="radiogroup" [attr.aria-label]="etiqueta()">
+  @for (opcion of opciones(); track opcion.valor) {
+    <button type="button" role="radio" class="segmento" [attr.aria-checked]="valor() === opcion.valor"
+      [disabled]="deshabilitado()" (click)="elegir(opcion.valor)">
+      @if (opcion.icono) {
+        <app-icono [nombre]="opcion.icono" [tamano]="grande() ? 26 : 18" />
+      }
+      <span class="textos">
+        <strong>{{ opcion.etiqueta }}</strong>
+        @if (grande() && opcion.descripcion) {
+          <small>{{ opcion.descripcion }}</small>
+        }
+      </span>
+    </button>
+  }
+</div>

@@ -1,0 +1,80 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radio-m);
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transicion), transform var(--transicion), box-shadow var(--transicion);
+  user-select: none;
+}
+
+:host(:active:not([disabled])) {
+  transform: translateY(1px);
+}
+
+:host([disabled]) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+:host(.boton--s) { padding: 6px 12px; font-size: 13px; border-radius: var(--radio-s); }
+:host(.boton--m) { padding: 10px 18px; font-size: 14px; }
+:host(.boton--l) { padding: 14px 24px; font-size: 16px; }
+:host(.boton--bloque) { display: flex; width: 100%; }
+:host(.boton--cargando) { pointer-events: none; }
+
+:host(.boton--primario) {
+  background: var(--tinta);
+  color: #fff;
+  box-shadow: var(--sombra-s);
+  &:hover:not([disabled]) { background: var(--tinta-oscura); }
+}
+
+:host(.boton--secundario) {
+  background: var(--superficie);
+  color: var(--texto);
+  border-color: var(--borde);
+  &:hover:not([disabled]) { background: var(--superficie-suave); }
+}
+
+:host(.boton--fantasma) {
+  background: transparent;
+  color: var(--texto-suave);
+  &:hover:not([disabled]) { background: var(--superficie-media); color: var(--texto); }
+}
+
+:host(.boton--peligro) {
+  background: var(--negativo-fondo);
+  color: var(--negativo);
+  &:hover:not([disabled]) { background: #fbd3cf; }
+}
+
+:host(.boton--exito) {
+  background: #13693a;
+  color: #fff;
+  &:hover:not([disabled]) { background: #0f5a31; }
+}
+
+:host(.boton--calido) {
+  background: var(--madera-clara);
+  color: var(--tinta-oscura);
+  &:hover:not([disabled]) { background: #ffc98a; }
+}
+
+.giro {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: girar 0.7s linear infinite;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}

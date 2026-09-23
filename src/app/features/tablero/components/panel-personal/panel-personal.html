@@ -1,0 +1,59 @@
+@let r = resumen();
+<header class="cabeza">
+  <span class="icono-caja"><app-icono nombre="insights" /></span>
+  <div>
+    <h2>Resumen de {{ nombreMes() }}</h2>
+    <p>Solo tú ves este tablero</p>
+  </div>
+</header>
+
+<section class="gastado">
+  <span>Gastado este mes</span>
+  <app-monto [valor]="r.gastadoMes" [moneda]="moneda()" tamano="xl" [mostrarMoneda]="true" />
+</section>
+
+<section>
+  <h3><app-icono nombre="category" [tamano]="18" /> En qué se fue</h3>
+  @for (c of categorias(); track c.clave) {
+    <div class="categoria">
+      <div class="fila-cat"><app-chip-categoria [categoria]="c" /><strong>{{ c.total | moneda: moneda() }}</strong></div>
+      <div class="barra"><div [style.width.%]="c.ancho" [style.background]="c.color"></div></div>
+    </div>
+  } @empty {
+    <p class="vacio">Aún no hay gastos este mes.</p>
+  }
+</section>
+
+<section class="cuadros">
+  <div class="cuadro" [class.alerta]="r.vencidas.cantidad > 0">
+    <app-icono nombre="warning" [tamano]="18" />
+    <span>Vencidas</span>
+    <strong>{{ r.vencidas.cantidad }}</strong>
+    <small>{{ r.vencidas.total | moneda: moneda() }}</small>
+  </div>
+  <div class="cuadro">
+    <app-icono nombre="schedule" [tamano]="18" />
+    <span>Vencen en {{ r.proximas.dias }} días</span>
+    <strong>{{ r.proximas.cantidad }}</strong>
+    <small>{{ r.proximas.total | moneda: moneda() }}</small>
+  </div>
+  <div class="cuadro">
+    <app-icono nombre="receipt_long" [tamano]="18" />
+    <span>Por pagar</span>
+    <strong>{{ r.porPagar.cantidad }}</strong>
+    <small>{{ r.porPagar.total | moneda: moneda() }}</small>
+  </div>
+</section>
+
+<app-lista-planes [planes]="r.planes" [moneda]="moneda()" (abrir)="abrirNota.emit($event)" />
+
+<section class="deudas">
+  <div class="deuda debo">
+    <span><app-icono nombre="north_east" [tamano]="16" /> Debo</span>
+    <app-monto [valor]="r.debo" [moneda]="moneda()" tamano="l" />
+  </div>
+  <div class="deuda favor">
+    <span><app-icono nombre="south_west" [tamano]="16" /> Me deben</span>
+    <app-monto [valor]="r.meDeben" [moneda]="moneda()" tamano="l" />
+  </div>
+</section>

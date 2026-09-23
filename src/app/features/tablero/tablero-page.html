@@ -1,0 +1,84 @@
+@if (store.cargando() && !store.tablero()) {
+  <app-cargando texto="Clavando las notas…" />
+} @else if (store.error() && !store.tablero()) {
+  <app-estado-vacio icono="sentiment_dissatisfied" titulo="No pudimos abrir este tablero" [texto]="store.error()!">
+    <button appBoton variante="primario" (click)="store.abrir(tableroId())">Reintentar</button>
+  </app-estado-vacio>
+} @else if (store.tablero(); as tablero) {
+  <div class="pagina">
+    <app-barra-tablero class="barra" [tablero]="tablero" [miembros]="store.miembros()" [presentes]="store.presentes()"
+      [contadores]="store.contadores()" [soyAdmin]="store.soyAdmin()" [soyPropietario]="store.soyPropietario()"
+      [(filtro)]="store.filtro" [(busqueda)]="store.busqueda" [verArchivo]="store.verArchivo()" (verArchivoChange)="store.mostrarArchivo($event)"
+      (archivarSaldadas)="archivarSaldadas()" (invitar)="invitarAbierto.set(true)" (compartir)="confirmacion.set('compartir')"
+      (salir)="confirmacion.set('salir')" (borrar)="confirmacion.set('borrar')" (categorias)="categoriasAbierto.set(true)" />
+
+    <div class="cuerpo">
+      <section class="zona-corcho" aria-label="Corcho con notas">
+        <app-corcho [notas]="store.notasVisibles()" [miembros]="store.miembrosPorId()" [categorias]="store.categoriasPorId()" [moneda]="store.moneda()"
+          [movidasPor]="movidasPor()" (moviendo)="alMover($event)" (soltada)="alSoltar($event)" (abrir)="abrirNota($event)">
+          @if (sinResultados()) {
+            <div class="vacio">
+              <app-estado-vacio [icono]="store.verArchivo() ? 'inventory_2' : 'search_off'"
+                [titulo]="store.busqueda().trim() ? 'Nada coincide con “' + store.busqueda().trim() + '”' : 'El archivo está vacío'"
+                [texto]="store.verArchivo() && !store.busqueda().trim() ? 'Aquí llegan las notas saldadas que quites del corcho.' : 'Prueba con otra palabra o quita los filtros.'">
+                @if (store.verArchivo()) {
+                  <button appBoton variante="secundario" icono="push_pin" (click)="store.mostrarArchivo(false)">Volver al corcho</button>
+                }
+              </app-estado-vacio>
+            </div>
+          } @else if (!store.notas().length && !store.verArchivo()) {
+            <div class="vacio">
+              <app-estado-vacio icono="push_pin" titulo="Tu corcho está vacío"
+                [texto]="store.esPersonal() ? 'Clava tu primer gasto, un recibo por pagar o lo que le debes a alguien.' : 'Clava el primer gasto compartido: el súper, la luz, la renta…'">
+                <button appBoton variante="primario" icono="add" (click)="nuevaNota()">Clavar nota</button>
+              </app-estado-vacio>
+            </div>
+          }
+        </app-corcho>
+        @if (store.verArchivo()) {
+          <p class="aviso-archivo"><app-icono nombre="inventory_2" [tamano]="18" /> Estás viendo el archivo</p>
+        } @else {
+          <button appBoton class="fab" variante="primario" tamano="l" icono="add" (click)="nuevaNota()">Nueva nota</button>
+        }
+      </section>
+
+      <aside class="panel">
+        @if (balanceCompartido(); as b) {
+          <app-panel-compartido [balance]="b" [miembros]="store.miembrosPorId()" [pagosPorConfirmar]="store.pagosPorConfirmar()"
+            [moneda]="store.moneda()" [yoId]="store.yoId()" (pagar)="pagarSugerencia($event)"
+            (confirmar)="decidirPago($event, true)" (rechazar)="decidirPago($event, false)" (abrirNota)="notaAbiertaId.set($event)" />
+        } @else if (resumenPersonal(); as r) {
+          <app-panel-personal [resumen]="r" [moneda]="store.moneda()" (abrirNota)="notaAbiertaId.set($event)" />
+        }
+        @if (store.presupuestos().length || store.soyAdmin()) {
+          <app-avance-presupuestos [avances]="store.presupuestos()" [categorias]="store.categoriasPorId()" [moneda]="store.moneda()"
+            (configurar)="categoriasAbierto.set(true)" />
+        }
+      </aside>
+    </div>
+  </div>
+
+  <app-nota-formulario [abierto]="formularioAbierto()" [nota]="notaEnEdicion()" [esPersonal]="store.esPersonal()"
+    [miembros]="store.miembros()" [yoId]="store.yoId()" [moneda]="store.moneda()" [guardar]="guardarNota"
+    [categorias]="store.categorias()" [crearCategoria]="crearCategoria"
+    (cerrar)="formularioAbierto.set(false)" />
+
+  <app-nota-detalle [abierto]="notaAbierta() !== null" [nota]="notaAbierta()" [miembros]="store.miembrosPorId()"
+    [categorias]="store.categoriasPorId()" [plan]="planNotaAbierta()"
+    [moneda]="store.moneda()" [yoId]="store.yoId()" [puedeEditar]="puedeEditarNotaAbierta()" [acciones]="accionesNota"
+    (cerrar)="notaAbiertaId.set(null)" (editar)="editarNota($event)" (pagarMiParte)="pagarMiParte($event)" />
+
+  <app-categorias-modal [abierto]="categoriasAbierto()" (cerrar)="categoriasAbierto.set(false)" />
+
+  @if (!store.esPersonal()) {
+    <app-pago-formulario [abierto]="pagoAbierto()" [sugerido]="pagoSugerido()" [miembros]="store.miembros()"
+      [yoId]="store.yoId()" [moneda]="store.moneda()" [guardar]="guardarPago" (cerrar)="pagoAbierto.set(false)" />
+    <app-invitar-modal [abierto]="invitarAbierto()" (cerrar)="invitarAbierto.set(false)" />
+  }
+
+  @if (confirmacion(); as c) {
+    <app-dialogo-confirmacion [abierto]="true" [titulo]="textosConfirmacion[c].titulo" [mensaje]="textosConfirmacion[c].mensaje"
+      [textoConfirmar]="textosConfirmacion[c].boton" [variante]="c === 'compartir' ? 'primario' : 'peligro'"
+      [icono]="c === 'compartir' ? 'group_add' : 'warning'" [accion]="ejecutarConfirmacion" (cerrar)="confirmacion.set(null)" />
+  }
+}

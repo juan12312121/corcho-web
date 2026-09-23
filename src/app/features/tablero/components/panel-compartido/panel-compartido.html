@@ -1,0 +1,90 @@
+@let b = balance();
+<header class="cabeza">
+  <span class="icono-caja"><app-icono nombre="account_balance_wallet" /></span>
+  <div>
+    <h2>Balance y cuentas</h2>
+    <p>Se calcula en vivo con cada nota y pago</p>
+  </div>
+</header>
+
+<div class="mio" [class.debo]="b.mio.neto < 0" [class.favor]="b.mio.neto > 0">
+  <span>{{ b.mio.neto > 0 ? 'Te deben' : b.mio.neto < 0 ? 'Debes' : 'Estás a mano' }}</span>
+  @if (b.mio.neto !== 0) {
+    <app-monto [valor]="b.mio.neto < 0 ? -b.mio.neto : b.mio.neto" [moneda]="moneda()" tamano="l" />
+  }
+</div>
+
+@for (pago of pagosPorConfirmar(); track pago.id) {
+  <section class="por-confirmar" aria-label="Pago por confirmar">
+    <p class="titulo-alerta"><app-icono nombre="notifications_active" [tamano]="18" /> Pago por confirmar</p>
+    <p><strong>{{ nombre(pago.deUsuarioId) }}</strong> dice que te pagó <strong>{{ pago.monto | moneda: moneda() }}</strong> ({{ pago.metodo }})</p>
+    <div class="acciones">
+      <button appBoton variante="exito" tamano="s" icono="check" (click)="confirmar.emit(pago)">Sí me llegó</button>
+      <button appBoton variante="secundario" tamano="s" (click)="rechazar.emit(pago)">Rechazar</button>
+    </div>
+  </section>
+}
+
+<section>
+  <h3><app-icono nombre="person" [tamano]="18" /> Neto por persona</h3>
+  <ul class="lista">
+    @for (n of netos(); track n.usuarioId) {
+      <li>
+        @if (n.miembro) {
+          <app-avatar [persona]="n.miembro" [tamano]="34" />
+        }
+        <div class="quien">
+          <strong>{{ n.nombre }}@if (n.soyYo) { (tú)}</strong>
+          @if (n.neto > 0) {
+            <app-etiqueta tono="exito">Le deben</app-etiqueta>
+          } @else if (n.neto < 0) {
+            <app-etiqueta tono="peligro">Debe</app-etiqueta>
+          } @else {
+            <app-etiqueta>A mano</app-etiqueta>
+          }
+        </div>
+        <app-monto [valor]="n.neto" [moneda]="moneda()" [colorear]="true" [conSigno]="true" />
+      </li>
+    }
+  </ul>
+</section>
+
+@if (b.entrePares.length) {
+  <section>
+    <h3><app-icono nombre="swap_horiz" [tamano]="18" /> Quién le debe a quién</h3>
+    <ul class="pares">
+      @for (t of b.entrePares; track t.de + t.a) {
+        <li>{{ nombre(t.de) }} <app-icono nombre="arrow_forward" [tamano]="16" /> {{ nombre(t.a) }} <strong>{{ t.monto | moneda: moneda() }}</strong></li>
+      }
+    </ul>
+  </section>
+}
+
+<section>
+  <h3><app-icono nombre="auto_awesome" [tamano]="18" /> Para quedar a mano</h3>
+  @for (t of b.sugerencias; track t.de + t.a) {
+    <div class="sugerencia">
+      <div>
+        <p>{{ fraseSugerencia(t) }}</p>
+        <app-monto [valor]="t.monto" [moneda]="moneda()" [mostrarMoneda]="true" />
+      </div>
+      <div class="botones">
+        @if (cuentaPara(t); as cuenta) {
+          <app-datos-transferencia [cuenta]="cuenta" [compacto]="true" />
+        }
+        @if (puedoRegistrar(t)) {
+          <button appBoton tamano="s" icono="payments" (click)="pagar.emit(t)">Registrar</button>
+        }
+      </div>
+    </div>
+  } @empty {
+    <p class="vacio"><app-icono nombre="celebration" [tamano]="18" /> Todos están a mano.</p>
+  }
+</section>
+
+<app-lista-planes [planes]="b.planes" [moneda]="moneda()" (abrir)="abrirNota.emit($event)" />
+
+<footer class="totales">
+  <span>Gastado <strong>{{ b.totales.gastado | moneda: moneda() }}</strong></span>
+  <span>Por pagar <strong>{{ b.totales.porPagar | moneda: moneda() }}</strong></span>
+</footer>

@@ -1,0 +1,151 @@
+:host {
+  display: block;
+  width: 220px;
+}
+
+app-nota-adhesiva {
+  min-height: 190px;
+}
+
+.moviendo {
+  position: absolute;
+  top: -14px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: var(--pin-naranja);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 800;
+  box-shadow: var(--sombra-s);
+}
+
+.arriba {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.discreto {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+h3 {
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.descripcion {
+  font-size: 13.5px;
+  opacity: 0.85;
+}
+
+.pie {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.15);
+}
+
+.linea {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+
+  &.chica { font-size: 11.5px; opacity: 0.8; }
+  &.alerta { color: #a52a2a; }
+}
+
+.partes {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.parte {
+  position: relative;
+
+  &.saldada::after {
+    content: '✓';
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--positivo);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 900;
+    display: grid;
+    place-items: center;
+  }
+}
+
+.cu {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sello {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-14deg);
+  padding: 4px 12px;
+  border: 3px dashed var(--negativo);
+  border-radius: 6px;
+  color: var(--negativo);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+
+.marcas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.meses {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px 1px 5px;
+  border-radius: 99px;
+  background: var(--tinta);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.extras {
+  justify-content: flex-end;
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.7;
+
+  span { display: inline-flex; align-items: center; gap: 2px; }
+}

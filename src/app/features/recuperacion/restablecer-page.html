@@ -1,0 +1,33 @@
+<div class="pantalla textura-corcho">
+  <section class="tarjeta">
+    <app-marca />
+    @if (listo()) {
+      <span class="icono-grande exito"><app-icono nombre="check_circle" [tamano]="34" /></span>
+      <h1>Listo, ya tienes contraseña nueva</h1>
+      <p class="sub">Entra con ella a tus tableros.</p>
+      <a appBoton variante="primario" tamano="l" [bloque]="true" routerLink="/entrar">Iniciar sesión</a>
+    } @else if (vencido() || !token()) {
+      <span class="icono-grande alerta"><app-icono nombre="link_off" [tamano]="34" /></span>
+      <h1>Este enlace ya no sirve</h1>
+      <p class="sub">Venció (duran 1 hora) o ya se usó. Pide uno nuevo.</p>
+      <a appBoton variante="primario" tamano="l" [bloque]="true" routerLink="/recuperar">Pedir otro enlace</a>
+    } @else {
+      <h1>Crea tu contraseña nueva</h1>
+      <p class="sub">Mínimo 8 caracteres.</p>
+      <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+        <app-campo etiqueta="Contraseña nueva"
+          [error]="formulario.controls.password.touched && formulario.controls.password.invalid ? 'Mínimo 8 caracteres' : null">
+          <input formControlName="password" type="password" autocomplete="new-password" />
+        </app-campo>
+        <app-campo etiqueta="Repítela" [error]="formulario.controls.repetir.touched && formulario.controls.repetir.invalid ? 'Repite la contraseña' : null">
+          <input formControlName="repetir" type="password" autocomplete="new-password" />
+        </app-campo>
+        @if (error()) {
+          <p class="error" role="alert">{{ error() }}</p>
+        }
+        <button appBoton type="submit" variante="primario" tamano="l" [bloque]="true" icono="key" [cargando]="enviando()">Guardar contraseña</button>
+      </form>
+    }
+    <a class="volver" routerLink="/entrar"><app-icono nombre="arrow_back" [tamano]="18" /> Volver a iniciar sesión</a>
+  </section>
+</div>

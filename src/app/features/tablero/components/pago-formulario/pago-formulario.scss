@@ -1,0 +1,35 @@
+.flujo {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: 8px;
+}
+
+.flecha {
+  padding-bottom: 8px;
+  color: var(--texto-tenue);
+}
+
+.personas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  .linea {
+    width: 80px;
+    border-top: 3px dashed var(--positivo);
+  }
+}
+
+.nota-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radio-m);
+  background: var(--tinta-clara);
+  color: var(--tinta);
+  font-size: 14px;
+  font-weight: 700;
+}

@@ -1,0 +1,46 @@
+<div class="pantalla">
+  <aside class="ilustracion textura-corcho" aria-hidden="true">
+    <app-nota-adhesiva color="amarillo" pinColor="rojo" [rotacion]="-4">
+      <strong class="mano">¿Quién pagó el súper?</strong>
+      <small>Ya no se te olvida.</small>
+    </app-nota-adhesiva>
+    <app-nota-adhesiva color="verde" pinColor="azul" [rotacion]="3">
+      <strong class="mano">Caro → Ana $388.50</strong>
+      <small>Corcho saca las cuentas.</small>
+    </app-nota-adhesiva>
+  </aside>
+
+  <section class="tarjeta">
+    <app-marca />
+    <h1>{{ esRegistro() ? 'Crea tu cuenta' : 'Qué gusto verte' }}</h1>
+    <p class="sub">{{ esRegistro() ? 'Te armamos tu primer tablero personal al instante.' : 'Entra para ver tus tableros.' }}</p>
+
+    <app-control-segmentado etiqueta="Tipo de acceso" [opciones]="pestanas" [formControl]="selectorModo" />
+
+    <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+      @if (esRegistro()) {
+        <app-campo etiqueta="Tu nombre" [error]="errorDe('nombre')">
+          <input formControlName="nombre" autocomplete="name" placeholder="Ana García" />
+        </app-campo>
+      }
+      <app-campo etiqueta="Correo" [error]="errorDe('email')">
+        <input formControlName="email" type="email" autocomplete="email" placeholder="tu@correo.com" />
+      </app-campo>
+      <app-campo etiqueta="Contraseña" [error]="errorDe('password')" [ayuda]="esRegistro() ? 'Mínimo 8 caracteres' : undefined">
+        <input formControlName="password" type="password" [autocomplete]="esRegistro() ? 'new-password' : 'current-password'" />
+      </app-campo>
+
+      @if (!esRegistro()) {
+        <a class="olvide" routerLink="/recuperar">¿Olvidaste tu contraseña?</a>
+      }
+
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+
+      <button appBoton type="submit" variante="primario" tamano="l" [bloque]="true" [cargando]="enviando()">
+        {{ esRegistro() ? 'Crear cuenta' : 'Iniciar sesión' }}
+      </button>
+    </form>
+  </section>
+</div>

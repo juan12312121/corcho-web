@@ -1,0 +1,214 @@
+/* =========================================================================
+   Corcho — estilos globales. Tokens tomados del diseño de Stitch.
+   Los componentes solo usan variables; nunca colores sueltos.
+   ========================================================================= */
+
+:root {
+  /* superficie */
+  --fondo: #fff9ef;
+  --superficie: #ffffff;
+  --superficie-suave: #faf3e7;
+  --superficie-media: #f4ede1;
+  --borde: #e8e2d6;
+  --borde-fuerte: #c4c6cf;
+
+  /* texto */
+  --texto: #1e1b14;
+  --texto-suave: #43474e;
+  --texto-tenue: #74777f;
+
+  /* marca */
+  --tinta: #1e3a5f;
+  --tinta-oscura: #022448;
+  --tinta-clara: #d5e3ff;
+  --madera: #775836;
+  --madera-clara: #ffd6ab;
+  --acento: #f7b500;
+
+  /* dinero */
+  --positivo: #2e9e5b;
+  --positivo-fondo: #e3f5ea;
+  --negativo: #d64545;
+  --negativo-fondo: #fde8e6;
+
+  /* notas (post-its) */
+  --nota-amarillo: #ffe88a;
+  --nota-azul: #a8d8f0;
+  --nota-verde: #bde8a8;
+  --nota-rosa: #f8b8c8;
+  --nota-naranja: #ffc98a;
+  --nota-morado: #d6c1f0;
+
+  /* chinches */
+  --pin-rojo: #d93a3a;
+  --pin-azul: #2f6fd6;
+  --pin-verde: #1f9d55;
+  --pin-amarillo: #f2b705;
+  --pin-morado: #8a4fd6;
+  --pin-naranja: #ef7d1a;
+
+  /* corcho */
+  --corcho: #c8a27a;
+  --corcho-marco-a: #ebd8be;
+  --corcho-marco-b: #cba77b;
+
+  /* forma */
+  --radio-s: 8px;
+  --radio-m: 12px;
+  --radio-l: 18px;
+  --radio-xl: 24px;
+  --sombra-s: 0 1px 2px rgba(60, 40, 20, 0.08);
+  --sombra-m: 0 8px 16px -4px rgba(60, 40, 20, 0.16), 0 3px 6px -2px rgba(60, 40, 20, 0.12);
+  --sombra-l: 0 24px 38px -6px rgba(30, 20, 10, 0.28), 0 12px 18px -4px rgba(30, 20, 10, 0.18);
+  --sombra-pin: 0 3px 5px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  /* tipografía */
+  --fuente: 'Nunito Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fuente-mano: 'Caveat', 'Comic Sans MS', cursive;
+
+  --transicion: 160ms ease;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--fuente);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--texto);
+  background: var(--fondo);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--tinta);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--tinta) 45%, transparent);
+  outline-offset: 2px;
+}
+
+.icono {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.mano {
+  font-family: var(--fuente-mano);
+}
+
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Formularios dentro de modales y páginas */
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.error {
+  padding: 10px 12px;
+  border-radius: var(--radio-m);
+  background: var(--negativo-fondo);
+  color: #8f1f1f;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Grupo de botones con título (chips, colores): no va dentro de <label> */
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.grupo-etiqueta {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--texto-suave);
+
+  small { font-weight: 600; color: var(--texto-tenue); margin-left: 4px; }
+}
+
+/* Textura de corcho (radial-gradients como en el diseño) */
+.textura-corcho {
+  background-color: var(--corcho);
+  background-image:
+    radial-gradient(#b89066 12%, transparent 13%),
+    radial-gradient(#ab8358 10%, transparent 11%),
+    radial-gradient(rgba(245, 222, 179, 0.45) 8%, transparent 9%),
+    radial-gradient(rgba(148, 108, 69, 0.4) 15%, transparent 16%);
+  background-size: 28px 28px, 42px 42px, 34px 34px, 56px 56px;
+  background-position: 0 0, 14px 14px, 7px 21px, 21px 7px;
+}
+
+.marco-madera {
+  background-image: linear-gradient(135deg, var(--corcho-marco-a) 0%, #d8ba93 50%, var(--corcho-marco-b) 100%);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 4px rgba(78, 51, 23, 0.35),
+    0 6px 16px rgba(43, 35, 32, 0.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

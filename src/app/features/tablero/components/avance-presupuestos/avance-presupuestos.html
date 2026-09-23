@@ -1,0 +1,31 @@
+<div class="cabeza">
+  <h3><app-icono nombre="savings" [tamano]="18" /> Presupuestos del mes</h3>
+  <button type="button" class="enlace" (click)="configurar.emit()">{{ filas().length ? 'Ajustar' : 'Poner topes' }}</button>
+</div>
+
+@if (excedidos()) {
+  <p class="alerta"><app-icono nombre="warning" [tamano]="16" /> Te pasaste en {{ excedidos() }} {{ excedidos() === 1 ? 'categoría' : 'categorías' }}</p>
+}
+
+<ul>
+  @for (f of filas(); track f.presupuestoId) {
+    <li [class]="f.estado">
+      <div class="fila">
+        <app-chip-categoria [categoria]="f.categoria!" [chico]="true" />
+        <span class="cifras"><strong>{{ f.gastado | moneda: moneda() }}</strong> de {{ f.limite | moneda: moneda() }}</span>
+      </div>
+      <app-barra-progreso [valor]="f.porcentaje / 100" [color]="f.color" [etiqueta]="'Presupuesto de ' + f.categoria!.nombre" />
+      <small>
+        @if (f.estado === 'excedido') {
+          Te pasaste por {{ -f.restante | moneda: moneda() }}
+        } @else if (f.estado === 'cerca') {
+          Vas al {{ f.porcentaje }} % · quedan {{ f.restante | moneda: moneda() }}
+        } @else {
+          Quedan {{ f.restante | moneda: moneda() }}
+        }
+      </small>
+    </li>
+  } @empty {
+    <li class="vacio">Ponle un tope mensual a tus categorías y te avisamos al llegar al 80 %.</li>
+  }
+</ul>

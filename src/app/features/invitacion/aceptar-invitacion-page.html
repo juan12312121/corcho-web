@@ -1,0 +1,38 @@
+<div class="pantalla textura-corcho">
+  <header><app-marca destino="/tableros" /></header>
+
+  @if (cargando()) {
+    <app-cargando texto="Buscando la invitación…" />
+  } @else if (vista(); as v) {
+    <app-nota-adhesiva class="tarjeta" color="amarillo" pinColor="rojo" [rotacion]="-1.5">
+      <p class="sobre"><app-icono nombre="mail" [tamano]="18" /> Te invitaron</p>
+      <h1 class="mano">{{ v.tablero }}</h1>
+      @if (v.descripcion) {
+        <p class="descripcion">{{ v.descripcion }}</p>
+      }
+      <ul class="datos">
+        <li><app-icono nombre="person" [tamano]="18" /> Te invita <strong>{{ v.invitadoPor }}</strong></li>
+        <li><app-icono nombre="groups" [tamano]="18" /> {{ v.miembros }} {{ v.miembros === 1 ? 'persona' : 'personas' }} en el tablero</li>
+        <li><app-icono nombre="schedule" [tamano]="18" /> Vence el {{ v.expiraEn | fechaCorta }}</li>
+      </ul>
+
+      @if (v.vigente) {
+        <div class="acciones">
+          <button appBoton variante="primario" tamano="l" icono="check" [cargando]="aceptando()" (click)="aceptar()">Entrar al tablero</button>
+          <a appBoton variante="fantasma" routerLink="/tableros">Ahora no</a>
+        </div>
+      } @else {
+        <p class="error">Esta invitación ya no está disponible. Pide una nueva a {{ v.invitadoPor }}.</p>
+      }
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+    </app-nota-adhesiva>
+  } @else {
+    <div class="caja">
+      <app-estado-vacio icono="link_off" titulo="Invitación no encontrada" [texto]="error() ?? 'Revisa que el enlace esté completo.'">
+        <a appBoton variante="primario" routerLink="/tableros">Ir a mis tableros</a>
+      </app-estado-vacio>
+    </div>
+  }
+</div>

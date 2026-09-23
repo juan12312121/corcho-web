@@ -1,0 +1,39 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  --color: var(--texto-tenue);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 99px;
+  border: 1px solid color-mix(in srgb, var(--color) 30%, white);
+  background: var(--superficie);
+  color: color-mix(in srgb, var(--color) 80%, black);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+
+  &:hover { background: color-mix(in srgb, var(--color) 10%, white); }
+
+  &[aria-checked='true'] {
+    background: var(--color);
+    border-color: var(--color);
+    color: #fff;
+  }
+
+  &.nueva {
+    border-style: dashed;
+    color: var(--tinta);
+  }
+}

@@ -1,0 +1,92 @@
+:host {
+  display: block;
+}
+
+h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tinta-oscura);
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-m);
+  background: var(--superficie);
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow var(--transicion);
+
+  &:hover { box-shadow: var(--sombra-s); }
+}
+
+.arriba {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icono-caja {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radio-s);
+  background: var(--tinta-clara);
+  color: var(--tinta);
+
+  &.deuda { background: #fff1c7; color: #7a5200; }
+}
+
+.textos {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+
+  strong { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  small { font-size: 12px; color: var(--texto-tenue); }
+}
+
+.cuenta {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--tinta);
+}
+
+.pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 10px;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.terminados {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--positivo);
+  font-weight: 700;
+}

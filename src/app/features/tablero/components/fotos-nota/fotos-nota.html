@@ -1,0 +1,44 @@
+<div class="cabeza">
+  <h3><app-icono nombre="receipt_long" [tamano]="18" /> Ticket o recibo</h3>
+  @if (caben() > 0) {
+    <label class="agregar" [class.ocupado]="subiendo() > 0">
+      <input type="file" accept="image/*" multiple (change)="elegir($event)" [disabled]="subiendo() > 0" />
+      <app-icono [nombre]="subiendo() ? 'progress_activity' : 'add_a_photo'" [tamano]="18" [class.gira]="subiendo() > 0" />
+      {{ subiendo() ? 'Subiendo…' : 'Agregar foto' }}
+    </label>
+  }
+</div>
+
+@if (fotos().length || subiendo()) {
+  <ul class="fotos">
+    @for (foto of fotos(); track foto.id) {
+      <li>
+        <button type="button" class="miniatura" (click)="ampliada.set(foto)" aria-label="Ver foto en grande">
+          <img [src]="miniatura(foto.url)" alt="Foto del ticket" loading="lazy" />
+        </button>
+        @if (puedeQuitar(foto)) {
+          <button type="button" class="quitar" (click)="quitar(foto)" aria-label="Quitar foto"><app-icono nombre="close" [tamano]="16" /></button>
+        }
+      </li>
+    }
+    @for (p of pendientes(); track $index) {
+      <li class="cargando" aria-label="Subiendo foto"></li>
+    }
+  </ul>
+} @else {
+  <p class="vacio">Sin fotos. Guarda aquí el ticket para no perderlo.</p>
+}
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
+
+@if (ampliada(); as foto) {
+  <div class="visor" (click)="ampliada.set(null)" role="dialog" aria-label="Foto del ticket">
+    <img [src]="foto.url" alt="Foto del ticket" (click)="$event.stopPropagation()" />
+    <div class="acciones-visor" (click)="$event.stopPropagation()">
+      <a appBoton variante="secundario" tamano="s" icono="open_in_new" [href]="foto.url" target="_blank" rel="noopener">Abrir original</a>
+      <button appBoton variante="secundario" tamano="s" icono="close" (click)="ampliada.set(null)">Cerrar</button>
+    </div>
+  </div>
+}

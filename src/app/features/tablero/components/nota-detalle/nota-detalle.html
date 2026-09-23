@@ -1,0 +1,156 @@
+<app-modal [abierto]="abierto()" [titulo]="nota()?.titulo ?? 'Nota'" [subtitulo]="tipo().etiqueta" [icono]="tipo().icono" (cerrar)="cerrar.emit()">
+  @if (nota(); as n) {
+    <div class="detalle">
+      @if (n.archivada) {
+        <p class="archivada"><app-icono nombre="inventory_2" [tamano]="18" /> Esta nota está en el archivo: ya no aparece en el corcho.</p>
+      }
+      <div class="cabecera" [style.--papel]="'var(--nota-' + n.color + ')'">
+        <div>
+          @if (n.monto !== null) {
+            <app-monto [valor]="n.monto" [moneda]="moneda()" tamano="xl" [mostrarMoneda]="true" />
+          }
+          <div class="etiquetas">
+            @if (categoria(); as c) {
+              <app-chip-categoria [categoria]="c" />
+            }
+            <app-etiqueta [tono]="estado().tono">{{ n.tipo === 'recordatorio' ? (n.estado === 'liquidada' ? 'Hecho' : 'Pendiente') : estado().etiqueta }}</app-etiqueta>
+            @if (n.recurrencia !== 'ninguna') {
+              <app-etiqueta icono="autorenew" tono="info">{{ recurrencia() }}</app-etiqueta>
+            }
+          </div>
+        </div>
+        <dl>
+          <div><dt>Fecha</dt><dd>{{ n.fecha | fechaCorta }}</dd></div>
+          @if (n.venceEn) {
+            <div><dt>Vence</dt><dd>{{ n.venceEn | fechaCorta }} @if (n.estado === 'por_pagar') {<small>· {{ n.venceEn | vencimiento }}</small>}</dd></div>
+          }
+          @if (n.pagadoPor) {
+            <div><dt>Pagó</dt><dd>{{ nombre(n.pagadoPor) }}</dd></div>
+          }
+        </dl>
+      </div>
+
+      @if (plan(); as p) {
+        <section class="bloque plan">
+          <h3>{{ p.tipo === 'compra' ? 'Compra a ' + p.meses + ' meses' : 'Se paga en ' + p.meses + ' meses' }}</h3>
+          <div class="plan-cifras">
+            <div><small>Total</small><strong>{{ p.total | moneda: moneda() }}</strong></div>
+            <div><small>Mensualidad</small><strong>{{ p.mensualidad | moneda: moneda() }}</strong></div>
+            <div><small>Pagadas</small><strong>{{ p.pagadas }} de {{ p.meses }}</strong></div>
+          </div>
+          <app-barra-progreso [valor]="p.pagadas / p.meses" etiqueta="Mensualidades pagadas" />
+          <p class="resumen">
+            Pagado <strong>{{ p.pagado | moneda: moneda() }}</strong> · Faltan <strong>{{ p.restante | moneda: moneda() }}</strong>
+            @if (p.proximaFecha) { · Próxima: <strong>{{ p.proximaFecha | fechaCorta }}</strong> }
+            @if (p.liquidado) { · <strong>¡Terminada!</strong> }
+          </p>
+        </section>
+      }
+
+      @if (n.descripcion) {
+        <p class="descripcion">{{ n.descripcion }}</p>
+      }
+
+      <!-- Deuda con alguien de fuera: abonos -->
+      @if (externa()) {
+        <section class="bloque">
+          <h3>{{ n.direccion === 'debo' ? 'Le debo a ' + n.contraparte : n.contraparte + ' me debe' }}</h3>
+          <app-barra-progreso [valor]="n.monto ? n.abonado / n.monto : 0" etiqueta="Abonado" />
+          <p class="resumen">Abonado <strong>{{ n.abonado | moneda: moneda() }}</strong> · Falta <strong>{{ (n.monto ?? 0) - n.abonado | moneda: moneda() }}</strong></p>
+          @if (n.estado !== 'liquidada') {
+            <form class="abono" (ngSubmit)="abonar()">
+              <label class="solo-lector" for="monto-abono">Monto del abono</label>
+              <input id="monto-abono" name="montoAbono" type="number" min="0" step="0.01" inputmode="decimal" placeholder="¿Cuánto abonaste?" [(ngModel)]="montoAbono" />
+              @if (plan() && !plan()!.liquidado) {
+                <button appBoton type="button" variante="secundario" (click)="usarMensualidad()">Mensualidad</button>
+              }
+              <button appBoton type="submit" variante="primario" icono="savings" [cargando]="ocupado()">Registrar abono</button>
+            </form>
+          }
+        </section>
+      }
+
+      <!-- Reparto entre miembros -->
+      @if (partes().length > 1) {
+        <section class="bloque">
+          <h3>Reparto ({{ n.modoReparto }})</h3>
+          <ul class="partes">
+            @for (p of partes(); track p.usuarioId) {
+              <li>
+                @if (p.miembro) {
+                  <app-avatar [persona]="p.miembro" [tamano]="30" />
+                }
+                <span class="quien">{{ nombre(p.usuarioId) }}</span>
+                @if (p.esPagador) {
+                  <app-etiqueta tono="info">Pagó</app-etiqueta>
+                } @else if (p.liquidada) {
+                  <app-etiqueta tono="exito" icono="check">Saldado</app-etiqueta>
+                } @else if (n.estado !== 'por_pagar') {
+                  <app-etiqueta tono="peligro">Debe</app-etiqueta>
+                }
+                <strong>{{ p.monto | moneda: moneda() }}</strong>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      <!-- Recibo por pagar: ¿quién lo pagó? -->
+      @if (n.estado === 'por_pagar') {
+        <section class="bloque pagar">
+          @if (n.tipo === 'recordatorio') {
+            <button appBoton variante="exito" icono="check" [cargando]="ocupado()" (click)="pagar()">Marcar como hecho</button>
+          } @else {
+            <h3>¿Ya se pagó?</h3>
+            <div class="fila-pago">
+              <label class="solo-lector" for="pagado-por">Quién pagó</label>
+              <select id="pagado-por" name="pagadoPor" [(ngModel)]="pagadoPor">
+                @for (m of listaMiembros(); track m.usuarioId) {
+                  <option [value]="m.usuarioId">{{ m.usuarioId === yoId() ? 'Lo pagué yo' : 'Lo pagó ' + (m.apodo || m.nombre) }}</option>
+                }
+              </select>
+              <button appBoton variante="exito" icono="paid" [cargando]="ocupado()" (click)="pagar()">Marcar pagada</button>
+            </div>
+          }
+        </section>
+      }
+
+      <section class="bloque">
+        <app-fotos-nota [nota]="n" />
+      </section>
+
+      <section class="bloque">
+        <app-comentarios-nota [notaId]="n.id" />
+      </section>
+
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+    </div>
+  }
+
+  <ng-container pie>
+    @if (nota(); as n) {
+      @if (puedeEditar()) {
+        @if (confirmandoBorrado()) {
+          <span class="confirmar">¿Quitar esta nota?</span>
+          <button appBoton variante="fantasma" tamano="s" (click)="confirmandoBorrado.set(false)">No</button>
+          <button appBoton variante="peligro" tamano="s" [cargando]="ocupado()" (click)="borrar()">Sí, quitar</button>
+        } @else {
+          <button appBoton variante="peligro" icono="delete" class="izquierda" (click)="confirmandoBorrado.set(true)">Quitar</button>
+          <button appBoton variante="secundario" icono="edit" (click)="editar.emit(n)">Editar</button>
+        }
+      }
+      @if (n.archivada) {
+        <button appBoton variante="secundario" icono="unarchive" [cargando]="ocupado()" (click)="archivar(false)">Regresar al corcho</button>
+      } @else if (archivable()) {
+        <button appBoton variante="secundario" icono="inventory_2" [cargando]="ocupado()" (click)="archivar(true)">Archivar</button>
+      }
+      @if (miPago(); as pago) {
+        <button appBoton variante="primario" icono="payments" (click)="pagarMiParte.emit({ nota: n, monto: pago.monto })">
+          {{ pago.esMensualidad ? 'Pagar mensualidad' : 'Pagar mi parte' }} ({{ pago.monto | moneda: moneda() }})
+        </button>
+      }
+    }
+  </ng-container>
+</app-modal>

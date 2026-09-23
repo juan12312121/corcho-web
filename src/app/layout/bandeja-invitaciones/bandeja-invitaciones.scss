@@ -1,0 +1,77 @@
+:host {
+  position: relative;
+}
+
+.campana {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--borde);
+  border-radius: 50%;
+  background: var(--superficie);
+  color: var(--texto-suave);
+  cursor: pointer;
+  transition: box-shadow var(--transicion), border-color var(--transicion);
+
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: var(--borde-fuerte);
+    box-shadow: var(--sombra-s);
+    color: var(--tinta);
+  }
+}
+
+.contador {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  border: 2px solid var(--fondo);
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 99px;
+  background: var(--negativo);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+}
+
+.panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(88vw, 340px);
+  padding: 16px;
+  border-radius: var(--radio-l);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  box-shadow: var(--sombra-l);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  h3 { font-size: 15px; }
+}
+
+.invitacion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radio-m);
+  background: var(--superficie-suave);
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.vacio {
+  color: var(--texto-tenue);
+  font-size: 14px;
+}

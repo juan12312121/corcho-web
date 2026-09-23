@@ -1,0 +1,103 @@
+<div class="pagina">
+  <header class="encabezado">
+    <a class="volver no-imprimir" [routerLink]="['/tableros', tableroId()]" aria-label="Volver al tablero" title="Volver al tablero"><app-icono nombre="arrow_back" /></a>
+    <div class="titulo">
+      <h1>Reportes @if (store.reporte(); as r) {<span>· {{ r.tablero.nombre }}</span>}</h1>
+      <p>Lo que se gastó (lo pagado; lo pendiente no cuenta).</p>
+    </div>
+    <div class="controles no-imprimir">
+      <div class="periodo" role="radiogroup" aria-label="Periodo">
+        @for (m of opcionesMeses; track m) {
+          <button type="button" role="radio" [attr.aria-checked]="store.meses() === m" (click)="store.cambiarMeses(m)">{{ m }} meses</button>
+        }
+      </div>
+      <button appBoton variante="secundario" icono="table_view" [disabled]="!store.reporte()" (click)="store.exportarExcel()">Excel</button>
+      <button appBoton variante="secundario" icono="picture_as_pdf" [disabled]="!store.reporte()" (click)="exportarPdf()">PDF</button>
+    </div>
+  </header>
+
+  @if (store.cargando() && !store.reporte()) {
+    <app-cargando texto="Sacando cuentas…" />
+  } @else if (store.error() && !store.reporte()) {
+    <app-estado-vacio icono="sentiment_dissatisfied" titulo="No pudimos armar el reporte" [texto]="store.error()!">
+      <button appBoton variante="primario" (click)="store.abrir(tableroId())">Reintentar</button>
+    </app-estado-vacio>
+  } @else if (store.reporte(); as r) {
+    <div class="contenido" [class.recargando]="store.cargando()">
+      <section class="cifras">
+        <div class="cifra">
+          <small>Total en {{ r.periodo.meses }} meses</small>
+          <strong>{{ r.total | moneda: store.moneda() }}</strong>
+        </div>
+        <div class="cifra">
+          <small>Promedio al mes</small>
+          <strong>{{ r.promedioMensual | moneda: store.moneda() }}</strong>
+        </div>
+        <div class="cifra">
+          <small>Mes más caro</small>
+          <strong>{{ store.mesMasCaro()?.nombre ?? '—' }}</strong>
+          @if (store.mesMasCaro(); as m) {<span>{{ m.total | moneda: store.moneda() }}</span>}
+        </div>
+        <div class="cifra">
+          <small>Gastos registrados</small>
+          <strong>{{ r.detalle.length }}</strong>
+        </div>
+      </section>
+
+      @if (!r.total) {
+        <app-estado-vacio icono="bar_chart" titulo="Aún no hay gastos en este periodo" texto="Cuando se paguen notas, aquí verás en qué se va el dinero." />
+      } @else {
+        <section class="tarjeta ancha">
+          <h2><app-icono nombre="calendar_month" [tamano]="20" /> Por mes</h2>
+          <app-grafica-barras [columnas]="store.columnas()" [moneda]="store.moneda()" etiqueta="Gasto por mes y categoría" />
+        </section>
+
+        <div class="dos">
+          <section class="tarjeta">
+            <h2><app-icono nombre="category" [tamano]="20" /> Por categoría</h2>
+            <app-grafica-dona [porciones]="store.porCategoria()" [moneda]="store.moneda()" etiqueta="Gasto por categoría" />
+          </section>
+
+          @if (store.esCompartido()) {
+            <section class="tarjeta">
+              <h2><app-icono nombre="group" [tamano]="20" /> Lo que le tocó a cada quien</h2>
+              <ul class="personas">
+                @for (p of store.porPersona(); track p.usuarioId) {
+                  <li>
+                    <div class="fila"><span>{{ p.nombre }}</span><strong>{{ p.total | moneda: store.moneda() }}</strong></div>
+                    <div class="barra"><div [style.width.%]="p.ancho" [style.background]="p.color"></div></div>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+        </div>
+
+        <section class="tarjeta ancha">
+          <h2><app-icono nombre="receipt_long" [tamano]="20" /> Detalle</h2>
+          <div class="tabla-caja">
+            <table>
+              <thead>
+                <tr><th>Fecha</th><th>Concepto</th><th>Categoría</th>@if (store.esCompartido()) {<th>Pagó</th>}<th class="num">Monto</th></tr>
+              </thead>
+              <tbody>
+                @for (d of store.detalle(); track $index) {
+                  <tr>
+                    <td>{{ d.fecha | fechaCorta }}</td>
+                    <td>{{ d.titulo }} <small>{{ d.tipoTexto }}</small></td>
+                    <td><span class="punto" [style.background]="d.categoria.color"></span>{{ d.categoria.nombre }}</td>
+                    @if (store.esCompartido()) {<td>{{ d.pagador }}</td>}
+                    <td class="num">{{ d.monto | moneda: store.moneda() }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr><td [attr.colspan]="store.esCompartido() ? 4 : 3">Total</td><td class="num">{{ r.total | moneda: store.moneda() }}</td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+      }
+    </div>
+  }
+</div>

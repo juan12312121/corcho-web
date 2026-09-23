@@ -1,0 +1,32 @@
+@if (planes().length) {
+  <h3><app-icono nombre="calendar_month" [tamano]="18" /> A meses</h3>
+  <ul>
+    @for (plan of activos(); track plan.planId) {
+      <li>
+        <button type="button" (click)="abrir.emit(plan.notaId)">
+          <div class="arriba">
+            <span class="icono-caja" [class.deuda]="plan.tipo === 'deuda'">
+              <app-icono [nombre]="plan.tipo === 'compra' ? 'shopping_bag' : 'handshake'" [tamano]="18" />
+            </span>
+            <div class="textos">
+              <strong>{{ plan.titulo }}</strong>
+              <small>{{ descripcion(plan) }} · {{ plan.total | moneda: moneda() }}</small>
+            </div>
+            <span class="cuenta">{{ plan.pagadas }}/{{ plan.meses }}</span>
+          </div>
+          <app-barra-progreso [valor]="plan.pagadas / plan.meses" [etiqueta]="'Mensualidades pagadas de ' + plan.titulo" />
+          <p class="pie">
+            <span>{{ plan.mensualidad | moneda: moneda() }} al mes</span>
+            @if (plan.proximaFecha) {
+              <span>Próxima: <strong>{{ plan.proximaFecha | fechaCorta }}</strong></span>
+            }
+            <span>Faltan {{ plan.restante | moneda: moneda() }}</span>
+          </p>
+        </button>
+      </li>
+    }
+  </ul>
+  @if (terminados()) {
+    <p class="terminados"><app-icono nombre="task_alt" [tamano]="16" /> {{ terminados() }} ya {{ terminados() === 1 ? 'terminada' : 'terminadas' }}</p>
+  }
+}

@@ -1,0 +1,80 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--fondo) 85%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--transicion), box-shadow var(--transicion);
+
+  /* Al hacer scroll aparece la línea y una sombra suave */
+  &.con-sombra {
+    border-bottom-color: var(--borde);
+    box-shadow: 0 6px 18px -12px rgba(60, 40, 20, 0.35);
+  }
+}
+
+.contenido {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  height: 64px;
+  padding: 0 clamp(16px, 3vw, 32px);
+}
+
+.pestanas {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 99px;
+  background: var(--superficie-media);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 99px;
+    color: var(--texto-suave);
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background var(--transicion), color var(--transicion);
+
+    &:hover { color: var(--texto); }
+
+    &.activa {
+      background: var(--superficie);
+      color: var(--tinta);
+      box-shadow: var(--sombra-s);
+    }
+  }
+}
+
+.derecha {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 560px) {
+  .contenido { gap: 10px; height: 58px; }
+  .pestanas { display: none; }
+}
+
+@media print {
+  .barra { display: none; }
+}

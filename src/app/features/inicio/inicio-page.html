@@ -1,0 +1,46 @@
+<div class="pagina">
+  <header class="encabezado">
+    <h1>Mis tableros</h1>
+    <button appBoton variante="primario" icono="add" (click)="modalAbierto.set(true)">Nuevo tablero</button>
+  </header>
+
+  @if (store.cargando()) {
+    <app-cargando texto="Trayendo tus corchos…" />
+  } @else if (store.error()) {
+    <app-estado-vacio icono="cloud_off" titulo="No pudimos cargar tus tableros" [texto]="store.error()!">
+      <button appBoton variante="primario" (click)="store.cargar()">Reintentar</button>
+    </app-estado-vacio>
+  } @else {
+    <section aria-labelledby="titulo-personales">
+      <h2 id="titulo-personales" class="seccion"><app-icono nombre="person" /> Tableros personales <span class="cuenta">{{ store.personales().length }}</span></h2>
+      <div class="rejilla">
+        @for (tablero of store.personales(); track tablero.id) {
+          <app-tarjeta-tablero [tablero]="tablero" />
+        }
+        <button type="button" class="nuevo" (click)="modalAbierto.set(true)">
+          <span class="icono-caja"><app-icono nombre="push_pin" [tamano]="26" /></span>
+          <strong class="mano">+ Nuevo tablero</strong>
+          <small>Personal o compartido</small>
+        </button>
+      </div>
+    </section>
+
+    <section aria-labelledby="titulo-compartidos">
+      <h2 id="titulo-compartidos" class="seccion"><app-icono nombre="groups" /> Tableros compartidos <span class="cuenta">{{ store.compartidos().length }}</span></h2>
+      @if (store.compartidos().length) {
+        <div class="rejilla">
+          @for (tablero of store.compartidos(); track tablero.id) {
+            <app-tarjeta-tablero [tablero]="tablero" />
+          }
+        </div>
+      } @else {
+        <app-estado-vacio icono="group_add" titulo="Aún no compartes ningún corcho"
+          texto="Crea uno para la casa, un viaje o la tanda, e invita a tu familia o amigos.">
+          <button appBoton variante="calido" icono="add" (click)="modalAbierto.set(true)">Crear tablero compartido</button>
+        </app-estado-vacio>
+      }
+    </section>
+  }
+</div>
+
+<app-nuevo-tablero-modal [abierto]="modalAbierto()" [guardar]="crearTablero" (cerrar)="modalAbierto.set(false)" />

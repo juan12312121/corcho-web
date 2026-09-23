@@ -1,0 +1,50 @@
+<header class="barra">
+  <app-marca />
+  <div class="acciones">
+    <a appBoton variante="fantasma" routerLink="/entrar">Iniciar sesión</a>
+    <a appBoton variante="primario" routerLink="/entrar" [queryParams]="{ modo: 'registro' }">Crear cuenta</a>
+  </div>
+</header>
+
+<main>
+  <section class="heroe">
+    <div class="texto">
+      <span class="sobretitulo"><app-icono nombre="push_pin" [tamano]="16" /> Cuentas claras, amistades largas</span>
+      <h1>Clava tus deudas y gastos en un <span class="mano subrayado">corcho</span>.</h1>
+      <p>Anota el súper, la luz o lo que le prestaste a alguien como una nota con su chinche. Hazlo solo en tu tablero personal o compártelo con tu familia y amigos.</p>
+      <div class="ctas">
+        <a appBoton variante="primario" tamano="l" icono="arrow_forward" routerLink="/entrar" [queryParams]="{ modo: 'registro' }">Empezar gratis</a>
+        <a appBoton variante="secundario" tamano="l" routerLink="/entrar">Ya tengo cuenta</a>
+      </div>
+    </div>
+
+    <div class="marco marco-madera" aria-hidden="true">
+      <div class="corcho textura-corcho">
+        @for (nota of notas; track nota.titulo) {
+          <app-nota-adhesiva [color]="nota.color" [pinColor]="nota.pin" [rotacion]="nota.giro">
+            <span class="tipo">{{ nota.tipo }}</span>
+            <strong class="mano">{{ nota.titulo }}</strong>
+            @if (nota.monto) {
+              <span class="monto">{{ nota.monto }}</span>
+            }
+            <small>{{ nota.pie }}</small>
+          </app-nota-adhesiva>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="beneficios" aria-label="Qué puedes hacer">
+    @for (b of beneficios; track b.titulo) {
+      <article>
+        <span class="icono-caja"><app-icono [nombre]="b.icono" [tamano]="26" /></span>
+        <h2>{{ b.titulo }}</h2>
+        <p>{{ b.texto }}</p>
+      </article>
+    }
+  </section>
+</main>
+
+<footer>
+  <strong>Corcho</strong> · Cuentas claras, amistades largas · Pesos mexicanos (MXN)
+</footer>

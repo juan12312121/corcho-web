@@ -1,0 +1,49 @@
+.caja {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radio-l);
+  border: 1px dashed var(--borde-fuerte);
+  background: var(--superficie);
+}
+
+.fila-nombre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-m);
+  }
+}
+
+.iconos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  gap: 4px;
+
+  button {
+    display: grid;
+    place-items: center;
+    height: 36px;
+    border: 1px solid transparent;
+    border-radius: var(--radio-s);
+    background: var(--superficie-suave);
+    color: var(--texto-suave);
+    cursor: pointer;
+
+    &:hover { background: var(--superficie-media); }
+    &[aria-checked='true'] { border-color: var(--tinta); background: var(--tinta-clara); color: var(--tinta); }
+  }
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

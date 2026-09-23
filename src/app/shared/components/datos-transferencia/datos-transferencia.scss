@@ -1,0 +1,61 @@
+:host {
+  display: contents;
+}
+
+.tarjeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radio-m);
+  border: 1px solid var(--tinta-clara);
+  background: color-mix(in srgb, var(--tinta-clara) 35%, var(--superficie));
+}
+
+.banco {
+  color: var(--tinta);
+}
+
+.datos {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+
+  small { font-size: 12px; color: var(--texto-suave); }
+}
+
+.clabe {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--tinta-oscura);
+}
+
+.copiar,
+.chico {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: 99px;
+  background: var(--superficie);
+  color: var(--tinta);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { border-color: var(--tinta); }
+  &.hecho { border-color: var(--positivo); color: var(--positivo); }
+}
+
+.copiar {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.chico {
+  padding: 4px 9px;
+  font-size: 12px;
+}

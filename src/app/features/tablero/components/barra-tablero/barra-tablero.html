@@ -1,0 +1,66 @@
+<div class="izquierda">
+  <a class="volver" routerLink="/tableros" aria-label="Volver a mis tableros" title="Mis tableros"><app-icono nombre="arrow_back" /></a>
+  <span class="icono-caja" [class.personal]="esPersonal()"><app-icono [nombre]="esPersonal() ? 'person' : 'home'" [relleno]="true" /></span>
+  <div class="titulo">
+    <h1>{{ tablero().nombre }}</h1>
+    <div class="subtitulo">
+      <app-etiqueta [tono]="esPersonal() ? 'aviso' : 'info'" [icono]="esPersonal() ? 'lock' : 'group'">
+        {{ esPersonal() ? 'Personal' : 'Compartido' }}
+      </app-etiqueta>
+      @if (!esPersonal()) {
+        <span class="en-linea"><span class="punto"></span>{{ presentes().length }} en línea</span>
+      }
+    </div>
+  </div>
+  @if (!esPersonal()) {
+    <app-grupo-avatares class="gente" [personas]="miembros()" [presentes]="presentes()" [tamano]="32" />
+  }
+</div>
+
+<label class="buscar">
+  <app-icono nombre="search" [tamano]="18" />
+  <span class="solo-lector">Buscar notas</span>
+  <input type="search" placeholder="Buscar…" [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" (keydown.escape)="busqueda.set('')" />
+</label>
+
+<div class="filtros" role="tablist" aria-label="Filtrar notas">
+  @for (f of filtros(); track f.valor) {
+    <button type="button" role="tab" [attr.aria-selected]="filtro() === f.valor" (click)="filtro.set(f.valor)">
+      <app-icono [nombre]="f.icono" [tamano]="17" />
+      {{ f.etiqueta }}
+      <span class="cuenta">{{ f.cuenta }}</span>
+    </button>
+  }
+</div>
+
+<div class="acciones">
+  <button type="button" class="redondo" [class.activo]="verArchivo()" [attr.aria-pressed]="verArchivo()" (click)="verArchivo.set(!verArchivo())"
+    [title]="verArchivo() ? 'Volver al corcho' : 'Ver archivo'" [attr.aria-label]="verArchivo() ? 'Volver al corcho' : 'Ver archivo'">
+    <app-icono [nombre]="verArchivo() ? 'push_pin' : 'inventory_2'" />
+  </button>
+  <a class="redondo" [routerLink]="['/tableros', tablero().id, 'reportes']" title="Reportes" aria-label="Reportes"><app-icono nombre="bar_chart" /></a>
+  @if (!esPersonal() && soyAdmin()) {
+    <button appBoton variante="primario" icono="person_add" (click)="invitar.emit()">Invitar</button>
+  }
+  <div class="menu">
+    <button type="button" class="mas" (click)="menuAbierto.set(!menuAbierto())" [attr.aria-expanded]="menuAbierto()" aria-haspopup="menu" aria-label="Más opciones">
+      <app-icono nombre="more_horiz" />
+    </button>
+    @if (menuAbierto()) {
+      <div class="desplegable" role="menu">
+        <button role="menuitem" (click)="elegir('categorias')"><app-icono nombre="sell" /> Categorías y presupuestos</button>
+        <button role="menuitem" (click)="elegir('archivarSaldadas')"><app-icono nombre="inventory_2" /> Archivar lo saldado</button>
+        @if (esPersonal() && soyPropietario()) {
+          <button role="menuitem" (click)="elegir('compartir')"><app-icono nombre="group_add" /> Convertir en compartido</button>
+        }
+        @if (!soyPropietario()) {
+          <button role="menuitem" (click)="elegir('salir')"><app-icono nombre="logout" /> Salir del tablero</button>
+        }
+        @if (soyPropietario()) {
+          <hr />
+          <button role="menuitem" class="peligro" (click)="elegir('borrar')"><app-icono nombre="delete" /> Borrar tablero</button>
+        }
+      </div>
+    }
+  </div>
+</div>

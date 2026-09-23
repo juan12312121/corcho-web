@@ -1,0 +1,22 @@
+<dialog #dialogo [class]="'ancho-' + ancho()" [attr.aria-labelledby]="idTitulo" (cancel)="pedirCierre($event)" (click)="clicEnFondo($event)">
+  @if (abierto()) {
+    <div class="caja">
+      <header>
+        @if (icono()) {
+          <span class="icono-titulo"><app-icono [nombre]="icono()!" [tamano]="22" /></span>
+        }
+        <div class="titulos">
+          <h2 [id]="idTitulo">{{ titulo() }}</h2>
+          @if (subtitulo()) {
+            <p>{{ subtitulo() }}</p>
+          }
+        </div>
+        <button type="button" class="cerrar" (click)="pedirCierre()" aria-label="Cerrar">
+          <app-icono nombre="close" />
+        </button>
+      </header>
+      <div class="cuerpo"><ng-content /></div>
+      <footer><ng-content select="[pie]" /></footer>
+    </div>
+  }
+</dialog>

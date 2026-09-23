@@ -1,0 +1,69 @@
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  padding: 18px;
+  border-radius: var(--radio-l);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow var(--transicion), transform var(--transicion);
+
+  &:hover {
+    box-shadow: var(--sombra-m);
+    transform: translateY(-2px);
+  }
+}
+
+h3 {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--tinta-oscura);
+  line-height: 1;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--texto-tenue);
+}
+
+.gente {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--borde);
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+.pastilla {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  background: var(--tinta-clara);
+  color: var(--tinta);
+  font-weight: 900;
+  font-size: 14px;
+
+  &.me-deben { background: var(--positivo-fondo); color: var(--positivo); }
+  &.debo { background: var(--negativo-fondo); color: var(--negativo); }
+}

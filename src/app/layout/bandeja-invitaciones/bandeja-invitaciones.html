@@ -1,0 +1,24 @@
+<button type="button" class="campana" (click)="abierta.set(!abierta())" [attr.aria-expanded]="abierta()"
+  [attr.aria-label]="'Invitaciones: ' + pendientes().length">
+  <app-icono nombre="notifications" [tamano]="22" />
+  @if (pendientes().length) {
+    <span class="contador">{{ pendientes().length }}</span>
+  }
+</button>
+
+@if (abierta()) {
+  <div class="panel" role="dialog" aria-label="Invitaciones">
+    <h3>Invitaciones</h3>
+    @for (invitacion of pendientes(); track invitacion.id) {
+      <div class="invitacion">
+        <p><strong>{{ invitacion.invitadoPor }}</strong> te invitó a <strong>{{ invitacion.tablero }}</strong></p>
+        <div class="acciones">
+          <button appBoton variante="primario" tamano="s" [cargando]="procesando() === invitacion.id" (click)="aceptar(invitacion)">Aceptar</button>
+          <button appBoton variante="fantasma" tamano="s" [disabled]="procesando() === invitacion.id" (click)="rechazar(invitacion)">Rechazar</button>
+        </div>
+      </div>
+    } @empty {
+      <p class="vacio">No tienes invitaciones pendientes.</p>
+    }
+  </div>
+}

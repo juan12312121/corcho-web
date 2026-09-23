@@ -1,0 +1,138 @@
+.pagina {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 16px 64px;
+}
+
+.encabezado {
+  h1 { font-size: 28px; color: var(--tinta-oscura); }
+  p { color: var(--texto-tenue); }
+}
+
+.tarjeta {
+  display: flex;
+  gap: 28px;
+  padding: 24px;
+  border-radius: var(--radio-xl);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  box-shadow: var(--sombra-s);
+}
+
+.foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.acciones-foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.subir {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--borde-fuerte);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--tinta);
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { border-color: var(--tinta); }
+  &.ocupado { cursor: progress; opacity: 0.8; }
+
+  input { position: absolute; inset: 0; opacity: 0; cursor: inherit; }
+}
+
+.formulario {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    color: var(--tinta-oscura);
+  }
+}
+
+.explica {
+  margin-top: -6px;
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+.dos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.pie {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.error {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--negativo);
+}
+
+.interruptor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  cursor: pointer;
+
+  input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+
+  .pista {
+    position: relative;
+    flex: none;
+    width: 42px;
+    height: 24px;
+    border-radius: 99px;
+    background: var(--borde-fuerte);
+    transition: background var(--transicion);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: var(--sombra-s);
+      transition: transform var(--transicion);
+    }
+  }
+
+  input:checked + .pista { background: var(--positivo); }
+  input:checked + .pista::after { transform: translateX(18px); }
+  input:focus-visible + .pista { outline: 3px solid var(--tinta-clara); outline-offset: 2px; }
+}
+
+@media (max-width: 640px) {
+  .tarjeta { flex-direction: column; gap: 18px; padding: 18px; }
+  .dos { grid-template-columns: 1fr; }
+}

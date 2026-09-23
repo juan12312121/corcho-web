@@ -1,0 +1,53 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.etiqueta {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--texto-suave);
+
+  small { font-weight: 600; color: var(--texto-tenue); margin-left: 4px; }
+}
+
+:host ::ng-deep :is(input, select, textarea) {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-m);
+  background: var(--superficie);
+  font-size: 15px;
+  transition: border-color var(--transicion), box-shadow var(--transicion);
+
+  &:focus {
+    outline: none;
+    border-color: var(--tinta);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tinta) 18%, transparent);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: var(--negativo);
+  }
+}
+
+:host ::ng-deep textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.error,
+.ayuda {
+  font-size: 12.5px;
+}
+
+.error { color: var(--negativo); font-weight: 700; }
+.ayuda { color: var(--texto-tenue); }

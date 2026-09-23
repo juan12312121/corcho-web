@@ -1,0 +1,40 @@
+<a class="tarjeta" [routerLink]="['/tableros', tablero().id]" [attr.aria-label]="'Abrir ' + tablero().nombre">
+  <header>
+    <h3 class="mano">{{ tablero().nombre }}</h3>
+    <p class="meta">
+      <app-icono nombre="sticky_note_2" [tamano]="16" />
+      {{ tablero().notasAbiertas }} {{ tablero().notasAbiertas === 1 ? 'nota abierta' : 'notas abiertas' }}
+      @if (esPersonal()) {
+        · Solo tú
+      }
+    </p>
+    @if (!esPersonal()) {
+      <div class="gente">
+        <app-grupo-avatares [personas]="tablero().integrantes" [tamano]="26" />
+        <span>{{ tablero().integrantes.length }} miembros</span>
+      </div>
+    }
+  </header>
+
+  <app-mini-corcho [notas]="notas()" />
+
+  <footer>
+    @if (esPersonal()) {
+      <span>Recibos por pagar</span>
+      <span class="pastilla" [class.debo]="tablero().porPagar > 0">{{ tablero().porPagar }}</span>
+    } @else {
+      <span>Mi balance</span>
+      @switch (saldo()) {
+        @case ('me-deben') {
+          <span class="pastilla me-deben"><app-icono nombre="south_west" [tamano]="16" /> Te deben {{ tablero().miNeto | moneda: tablero().moneda }}</span>
+        }
+        @case ('debo') {
+          <span class="pastilla debo"><app-icono nombre="north_east" [tamano]="16" /> Debes {{ -tablero().miNeto | moneda: tablero().moneda }}</span>
+        }
+        @default {
+          <span class="pastilla"><app-icono nombre="check_circle" [tamano]="16" /> Estás a mano</span>
+        }
+      }
+    }
+  </footer>
+</a>
